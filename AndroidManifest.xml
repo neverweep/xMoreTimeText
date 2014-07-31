@@ -1,7 +1,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="de.xiaoxia.xmoretimetext"
-    android:versionCode="1"
-    android:versionName="1.0" >
+    android:versionCode="2"
+    android:versionName="1.1" >
     <uses-sdk
         android:minSdkVersion="14"
         android:targetSdkVersion="19" />
@@ -9,9 +9,16 @@
         android:allowBackup="true"
         android:icon="@drawable/ic_launcher"
         android:label="X MoreTimeText"
-        android:theme="@android:style/Theme.Holo" >
+        android:theme="@android:style/Theme.DeviceDefault" >
         <meta-data android:name="xposedmodule" android:value="true"/>
-        <meta-data android:name="xposeddescription" android:value="在状态栏时间前添加上午、下午、晚上等信息" />
+        <meta-data android:name="xposeddescription" android:value="@string/desc" />
         <meta-data android:name="xposedminversion" android:value="30"/>
+        <activity android:name="Setting">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="de.robv.android.xposed.category.MODULE_SETTINGS" />
+                <category android:name="android.xposed.category.MODULE_SETTINGS" />
+            </intent-filter>
+        </activity>
     </application>
 </manifest>

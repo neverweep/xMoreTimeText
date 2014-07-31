@@ -1,3 +1,41 @@
 <resources>
     <string name="app_name">X MoreTimeText</string>
+    <string name="about">About X MoreTimeText</string>
+	<string name="about_msg"><b>Glad to see this app on your Android &lt;3</b>\n\nBlog: <a href="http://xiaoxia.de/">xiaoxia.de</a>\n\nDonate: \n<a href="http://xiaoxia.de/upload/donation.html">xiaoxia.de/upload/donation.html</a></string>
+    <string name="settings">Settings</string>
+    <string name="ok">OK</string>
+    <string name="cancel">Cancel</string>
+    <string name="customize">Customize</string>
+    <string name="basic">Basic</string>
+    <string name="filter">Filter</string>
+    <string name="ps">Start</string>
+    <string name="pe">End</string>
+    <string name="pt">Title</string>
+    <string name="tp">Time Period</string>
+    <string name="notset">Not Set</string>
+    <string name="filter_summary_off">Remain original AM/PM text</string>
+    <string name="filter_summary_on">Remove original AM/PM text</string>
+    <string name="customize_summary_on">Append your own additional text to the clock</string>
+    <string name="customize_summary_off">Append default built-in text to the clock</string>
+    <string name="clear">Clear time period settings</string>
+    <string name="clear_msg">"Are you sure to clear all time period settings?\n\nYou can't undo this operation."</string>
+    <string name="help">Help</string>
+    <string name="help_msg">No data validity check. Make sure your time period settings are correct.\n\nTime period title is optional and using less letters is better.\n\nIf time periods are duplicated or conflicted, the prior one in the list has higher priority.\n\nDo not set a time period over / ended with 00:00. Set AA:BB ~ 23:59 and 00:00 ~ CC:DD instead.</string>
+    <string name="desc">"Append your custom text to the clock in a specified time period. eg &quot;Lunch 12:15&quot; in 12:00 ~ 12:30.
+[Touch here for settings. Reboot to apply.]"</string>
+    <string name="position">Position</string>
+    <string name="left">Left</string>
+    <string name="right">Right</string>
+    <string name="position_summary_1">"Append to the "</string>
+    <string name="position_summary_2">" side of the clock"</string>
+    <string name="size">Additional text size</string>
+    <string name="s13">1.3 X</string>
+    <string name="s12">1.2 X</string>
+    <string name="s11">1.1 X</string>
+    <string name="s10">1.0 X(Default)</string>
+    <string name="s09">0.9 X</string>
+    <string name="s08">0.8 X</string>
+    <string name="s07">0.7 X</string>
+    <string name="s06">0.6 X</string>
+    <string name="s05">0.5 X</string>
 </resources>

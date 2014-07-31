@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+    <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+        <PreferenceCategory android:key="basic" android:title="@string/basic">
+            <SwitchPreference android:key="customize_switch" android:title="@string/customize" android:summaryOff="@string/customize_summary_off" android:summaryOn="@string/customize_summary_on" android:defaultValue="false"/>
+            <SwitchPreference android:key="filter_switch" android:title="@string/filter" android:summaryOff="@string/filter_summary_off" android:summaryOn="@string/filter_summary_on" android:defaultValue="false"/>
+            <ListPreference android:key="position" android:entryValues="@array/position_values" android:positiveButtonText="@string/ok" android:entries="@array/position" android:negativeButtonText="@string/cancel" android:dialogTitle="@string/position" android:title="@string/position" android:defaultValue="true" />
+            <ListPreference android:key="size" android:entryValues="@array/size_value" android:entries="@array/size" android:dialogTitle="@string/size" android:positiveButtonText="@string/ok" android:negativeButtonText="@string/cancel" android:defaultValue="1.0" android:title="@string/size"/>
+        </PreferenceCategory>
+        <PreferenceCategory android:key="customize" android:title="@string/customize">
+            <EditTextPreference android:singleLine="true" android:dependency="customize_switch" android:title="@string/pt" android:key="pt0" android:summary="@string/notset"/>
+            <de.xiaoxia.xmoretimetext.TimePreference android:dependency="customize_switch" android:key="ps0" android:title="@string/ps" />
+            <de.xiaoxia.xmoretimetext.TimePreference android:dependency="customize_switch" android:key="pe0" android:title="@string/pe" />
+            <EditTextPreference android:singleLine="true" android:dependency="customize_switch" android:title="@string/pt" android:key="pt1" android:summary="@string/notset"/>
+            <de.xiaoxia.xmoretimetext.TimePreference android:dependency="customize_switch" android:key="ps1" android:title="@string/ps" />
+            <de.xiaoxia.xmoretimetext.TimePreference android:dependency="customize_switch" android:key="pe1" android:title="@string/pe" />
+            <EditTextPreference android:singleLine="true" android:dependency="customize_switch" android:title="@string/pt" android:key="pt2" android:summary="@string/notset"/>
+            <de.xiaoxia.xmoretimetext.TimePreference android:dependency="customize_switch" android:key="ps2" android:title="@string/ps" />
+            <de.xiaoxia.xmoretimetext.TimePreference android:dependency="customize_switch" android:key="pe2" android:title="@string/pe" />
+            <EditTextPreference android:singleLine="true" android:dependency="customize_switch" android:title="@string/pt" android:key="pt3" android:summary="@string/notset"/>
+            <de.xiaoxia.xmoretimetext.TimePreference android:dependency="customize_switch" android:key="ps3" android:title="@string/ps" />
+            <de.xiaoxia.xmoretimetext.TimePreference android:dependency="customize_switch" android:key="pe3" android:title="@string/pe" />
+            <EditTextPreference android:singleLine="true" android:dependency="customize_switch" android:title="@string/pt" android:key="pt4" android:summary="@string/notset"/>
+            <de.xiaoxia.xmoretimetext.TimePreference android:dependency="customize_switch" android:key="ps4" android:title="@string/ps" />
+            <de.xiaoxia.xmoretimetext.TimePreference android:dependency="customize_switch" android:key="pe4" android:title="@string/pe" />
+            <EditTextPreference android:singleLine="true" android:dependency="customize_switch" android:title="@string/pt" android:key="pt5" android:summary="@string/notset"/>
+            <de.xiaoxia.xmoretimetext.TimePreference android:dependency="customize_switch" android:key="ps5" android:title="@string/ps" />
+            <de.xiaoxia.xmoretimetext.TimePreference android:dependency="customize_switch" android:key="pe5" android:title="@string/pe" />
+            <EditTextPreference android:singleLine="true" android:dependency="customize_switch" android:title="@string/pt" android:key="pt6" android:summary="@string/notset"/>
+            <de.xiaoxia.xmoretimetext.TimePreference android:dependency="customize_switch" android:key="ps6" android:title="@string/ps" />
+            <de.xiaoxia.xmoretimetext.TimePreference android:dependency="customize_switch" android:key="pe6" android:title="@string/pe" />
+            <EditTextPreference android:singleLine="true" android:dependency="customize_switch" android:title="@string/pt" android:key="pt7" android:summary="@string/notset"/>
+            <de.xiaoxia.xmoretimetext.TimePreference android:dependency="customize_switch" android:key="ps7" android:title="@string/ps" />
+            <de.xiaoxia.xmoretimetext.TimePreference android:dependency="customize_switch" android:key="pe7" android:title="@string/pe" />
+            <EditTextPreference android:singleLine="true" android:dependency="customize_switch" android:title="@string/pt" android:key="pt8" android:summary="@string/notset"/>
+            <de.xiaoxia.xmoretimetext.TimePreference android:dependency="customize_switch" android:key="ps8" android:title="@string/ps" />
+            <de.xiaoxia.xmoretimetext.TimePreference android:dependency="customize_switch" android:key="pe8" android:title="@string/pe" />
+            <EditTextPreference android:singleLine="true" android:dependency="customize_switch" android:title="@string/pt" android:key="pt9" android:summary="@string/notset"/>
+            <de.xiaoxia.xmoretimetext.TimePreference android:dependency="customize_switch" android:key="ps9" android:title="@string/ps" />
+            <de.xiaoxia.xmoretimetext.TimePreference android:dependency="customize_switch" android:key="pe9" android:title="@string/pe" />
+        </PreferenceCategory>
+    </PreferenceScreen>
