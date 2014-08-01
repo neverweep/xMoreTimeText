@@ -20,7 +20,7 @@
     <string name="clear">Clear time period settings</string>
     <string name="clear_msg">"Are you sure to clear all time period settings?\n\nYou can't undo this operation."</string>
     <string name="help">Help</string>
-    <string name="help_msg">No data validity check. Make sure your time period settings are correct.\n\nTime period title is optional and using less letters is better.\n\nIf time periods are duplicated or conflicted, the prior one in the list has higher priority.\n\nDo not set a time period over / ended with 00:00. Set AA:BB ~ 23:59 and 00:00 ~ CC:DD instead.</string>
+    <string name="help_msg">No data validity check. Make sure your time period settings are correct.\n\nTime period title is optional and using less letters is better.\n\nIf time periods are duplicated or conflicted, the prior one in the list has higher priority.\n\nDo not set a time period over / ended at 00:00. Set AA:BB ~ 23:59 and 00:00 ~ CC:DD instead.</string>
     <string name="desc">"Append your custom text to the clock in a specified time period. eg &quot;Lunch 12:15&quot; in 12:00 ~ 12:30.
 [Touch here for settings. Reboot to apply.]"</string>
     <string name="position">Position</string>

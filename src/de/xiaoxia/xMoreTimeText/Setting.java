@@ -75,6 +75,7 @@ public class Setting extends PreferenceActivity implements OnSharedPreferenceCha
         //设置有变化、则重新读取设置并显示在界面上
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
         if(key.equals("position")){
+            lp = (ListPreference) findPreference("position");
             if(lp.getValue().toString().equals("true")){
                 lp.setSummary(getString(R.string.position_summary_1) + getString(R.string.left) + getString(R.string.position_summary_2));
             }else{
@@ -83,6 +84,7 @@ public class Setting extends PreferenceActivity implements OnSharedPreferenceCha
             return;
         }
         if(key.equals("size")){
+            lp = (ListPreference) findPreference("size");
             lp.setSummary(lp.getEntry());
             return;
         }

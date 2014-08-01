@@ -21,8 +21,9 @@ public class Main implements IXposedHookLoadPackage {
     private static String time;
     private static String[] timeText;
     private static Calendar calendar;
-    private DecimalFormat df = new DecimalFormat("00");
-    private SpannableString ss;
+    private static DecimalFormat df = new DecimalFormat("00");
+    private static SpannableString ss;
+    private static String str;
 
     //使用Xposed提供的XSharedPreferences方法来读取android内置的SharedPreferences设置
     private final static XSharedPreferences prefs = new XSharedPreferences(Main.class.getPackage().getName());
@@ -35,7 +36,7 @@ public class Main implements IXposedHookLoadPackage {
     //自定义大小
     protected final static Float _size = Float.valueOf(prefs.getString("size", "1.0"));
     //如果没有自定义大小，则跳过设置spannable过程
-    private final static Boolean _size_perse = !prefs.getString("size", "1.0").equals("1.0");
+    private final static Boolean _size_parse = !prefs.getString("size", "1.0").equals("1.0");
     //读取自定义名称
     protected final static String[] pt = {
         prefs.getString("pt0", "").trim(),
@@ -109,12 +110,11 @@ public class Main implements IXposedHookLoadPackage {
 
                 textview = (TextView) param.thisObject; //获取TextView控件
 
-                String str = textview.getText().toString();
+                str = textview.getText().toString();
                 //如果打开过滤则用正则表达式去除原始时间中的文字
                 if (_filter) {
                     str = str.replaceAll("([上下]午)|([AP]\\.?M\\.?)", "");
                 }
-                str = str.replaceAll(" ", "");
 
                 calendar.setTimeInMillis(System.currentTimeMillis()); //设定日历控件为当前时间
                 int hm = Integer.parseInt(calendar.get(Calendar.HOUR_OF_DAY) + df.format(calendar.get(Calendar.MINUTE))); //读取时间，hhmm
@@ -122,7 +122,6 @@ public class Main implements IXposedHookLoadPackage {
                 //如果打开自定义，则
                 if (_customize) {
                     //时间判断
-                    time = "";
                     for (int i = 0; i <= 9; i++) {
                         //XposedBridge.log(i + " -  EN:" + en[i] + " NOW:" + hm + " ED:" + pe[i] + " ST:" + ps[i]);
                         if (en[i] && hm <= pe[i] && hm >= ps[i]) {
@@ -150,7 +149,8 @@ public class Main implements IXposedHookLoadPackage {
                 }
                 //写入TextView
                 if(_position){
-                    if(_size_perse){
+                    str = str.replaceAll("^ +", "");
+                    if(_size_parse){
                         ss =  new SpannableString(time + " " + str);
                         ss.setSpan(new RelativeSizeSpan(_size), 0, time.length(), 0);
                         textview.setText(ss);
@@ -159,7 +159,8 @@ public class Main implements IXposedHookLoadPackage {
                         textview.setText(str);
                     }
                 }else{
-                    if(_size_perse){
+                    str = str.replaceAll(" +$", "");
+                    if(_size_parse){
                         ss =  new SpannableString(str + " " + time);
                         ss.setSpan(new RelativeSizeSpan(_size), str.length(), ss.length(), 0);
                         textview.setText(ss);
