@@ -1,12 +1,12 @@
 <resources>
-    <string name="app_name">X MoreTimeText</string>
-    <string name="about">关于 X MoreTimeText</string>
+    <string name="app_name">X 时钟文字扩展</string>
+    <string name="about">关于 X 时钟文字扩展</string>
 	<string name="about_msg"><b>欢迎使用这个 Xposed 模块\n希望能给你带来一点方便：）</b>\n\n我的博客: <a href="http://xiaoxia.de/">xiaoxia.de</a>\n\n捐贈：\n<a href="http://xiaoxia.de/upload/donation.html">xiaoxia.de/upload/donation.html</a></string>
     <string name="settings">设置</string>
     <string name="ok">确定</string>
     <string name="cancel">取消</string>
     <string name="customize">自定义</string>
-    <string name="basic">基本</string>
+    <string name="basic">基本设置</string>
     <string name="filter">过滤</string>
     <string name="ps">开始</string>
     <string name="pe">结束</string>
@@ -23,7 +23,7 @@
     <string name="help_msg">没有数据有效性检查，请确保您输入的时间段正确。\n\n时间段标题是可选设置，尽量减少字符。\n\n如果时间段之间重复或者冲突，排列在前的时间段设置拥有更高的优先级。\n\n时间段请勿越过或结束于 00:00，如果有需要请设置为 AA:BB ~ 23:59 和 00:00 ~ CC:DD。</string>
     <string name="desc">"在您的时钟旁添加文字，如“凌晨 05:30”，“早晨 07:30”。可以自定义多个文字和时间段。
 [点击这里进入设置，重启后生效]"</string>
-    <string name="position">位置</string>
+    <string name="position">附加文字位置</string>
     <string name="left">左边</string>
     <string name="right">右边</string>
     <string name="position_summary_1">"附加到时钟"</string>
@@ -38,4 +38,19 @@
     <string name="s07">0.7 倍</string>
     <string name="s06">0.6 倍</string>
     <string name="s05">0.5 倍</string>
+    <string name="display">扩展状态栏</string>
+    <string name="display_summary_off">仅在状态栏显示</string>
+    <string name="display_summary_on">也在扩展状态栏显示</string>
+    <string name="date">日期设置</string>
+    <string name="basic_first">基本文字优先</string>
+    <string name="date_first">日期文字优先</string>
+    <string name="size_expended">扩展状态栏附加文字大小</string>
+    <string name="display_date">附加日期文字</string>
+    <string name="display_date_summary_off">无操作</string>
+    <string name="display_date_summary_on">在时钟旁附加日期</string>
+    <string name="position_date">附加日期文字位置</string>
+    <string name="size_date">附加日期文字大小</string>
+    <string name="priority_date">附加信息显示顺序（同侧）</string>
+    <string name="format_date">日期格式</string>
+    <string name="format_msg">yy = 年（14）\nyyyy = 年 （2014）\nM = 月（8）\nMM = 月（08）\nd = 日（1）\ndd = 日（01）\nE = 星期（周一）\n\n注意：请参考 SimpleDateFormat 的使用手册，不要添加非法的英文字符。</string>
 </resources>

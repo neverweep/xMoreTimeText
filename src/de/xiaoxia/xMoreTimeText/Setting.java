@@ -48,11 +48,41 @@ public class Setting extends PreferenceActivity implements OnSharedPreferenceCha
         }else{
             lp.setSummary(getString(R.string.position_summary_1) + getString(R.string.right) + getString(R.string.position_summary_2));
         }
+        lp = (ListPreference) findPreference("position_date");
+        if(lp.getValue().toString().equals("true")){
+            lp.setSummary(getString(R.string.position_summary_1) + getString(R.string.left) + getString(R.string.position_summary_2));
+        }else{
+            lp.setSummary(getString(R.string.position_summary_1) + getString(R.string.right) + getString(R.string.position_summary_2));
+        }
+        lp = (ListPreference) findPreference("priority_date");
+        if(lp.getValue().toString().equals("true")){
+            lp.setSummary(R.string.basic_first);
+        }else{
+        	lp.setSummary(lp.getEntry());
+        }
         lp = (ListPreference) findPreference("size");
         if(lp.getValue().toString().equals("1.0") || "".equals(lp.getValue())){
             lp.setSummary(R.string.s10);
         }else{
         	lp.setSummary(lp.getEntry());
+        }
+        lp = (ListPreference) findPreference("size_date");
+        if(lp.getValue().toString().equals("1.0") || "".equals(lp.getValue())){
+            lp.setSummary(R.string.s10);
+        }else{
+        	lp.setSummary(lp.getEntry());
+        }
+        lp = (ListPreference) findPreference("size_expended");
+        if(lp.getValue().toString().equals("1.0") || "".equals(lp.getValue())){
+            lp.setSummary(R.string.s10);
+        }else{
+        	lp.setSummary(lp.getEntry());
+        }
+        etp = (EditTextPreference) findPreference("format_date");
+        if(!"".equals(etp.getText()) && etp.getText() != null){
+            etp.setSummary(etp.getText());
+        }else{
+            etp.setSummary(getString(R.string.notset));
         }
         for (int i = 0; i <= 9; i++) {
             etp = (EditTextPreference) findPreference("pt" + i);
@@ -83,9 +113,42 @@ public class Setting extends PreferenceActivity implements OnSharedPreferenceCha
             }
             return;
         }
+        if(key.equals("position_date")){
+            lp = (ListPreference) findPreference("position_date");
+            if(lp.getValue().toString().equals("true")){
+                lp.setSummary(getString(R.string.position_summary_1) + getString(R.string.left) + getString(R.string.position_summary_2));
+            }else{
+                lp.setSummary(getString(R.string.position_summary_1) + getString(R.string.right) + getString(R.string.position_summary_2));
+            }
+            return;
+        }
+        if(key.equals("priority_date")){
+            lp = (ListPreference) findPreference("priority_date");
+            lp.setSummary(lp.getEntry());
+            return;
+        }
         if(key.equals("size")){
             lp = (ListPreference) findPreference("size");
             lp.setSummary(lp.getEntry());
+            return;
+        }
+        if(key.equals("size_date")){
+            lp = (ListPreference) findPreference("size_date");
+            lp.setSummary(lp.getEntry());
+            return;
+        }
+        if(key.equals("size_expended")){
+            lp = (ListPreference) findPreference("size_expended");
+            lp.setSummary(lp.getEntry());
+            return;
+        }
+        if(key.equals("format_date")){
+            etp = (EditTextPreference) findPreference("format_date");
+            if(!"".equals(etp.getText()) && etp.getText() != null){
+                etp.setSummary(etp.getText());
+            }else{
+                etp.setSummary(getString(R.string.notset));
+            }
             return;
         }
         for (int i = 0; i <= 9; i++) {

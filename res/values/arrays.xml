@@ -19,9 +19,9 @@
         <item>@string/s06</item>
         <item>@string/s05</item>
     </string-array>
-    <string-array name="size_value">
+    <string-array name="size_values">
         <item>1.3</item>
-        <item>1.0</item>
+        <item>1.2</item>
         <item>1.1</item>
         <item>1.0</item>
         <item>0.9</item>
@@ -29,5 +29,13 @@
         <item>0.7</item>
         <item>0.6</item>
         <item>0.5</item>
+    </string-array>
+    <string-array name="priority">
+        <item>@string/basic_first</item>
+        <item>@string/date_first</item>
+    </string-array>
+    <string-array name="priority_values">
+        <item>true</item>
+        <item>false</item>
     </string-array>
 </resources>

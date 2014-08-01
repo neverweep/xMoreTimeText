@@ -6,7 +6,7 @@
     <string name="ok">OK</string>
     <string name="cancel">Cancel</string>
     <string name="customize">Customize</string>
-    <string name="basic">Basic</string>
+    <string name="basic">Basic settings</string>
     <string name="filter">Filter</string>
     <string name="ps">Start</string>
     <string name="pe">End</string>
@@ -23,7 +23,7 @@
     <string name="help_msg">No data validity check. Make sure your time period settings are correct.\n\nTime period title is optional and using less letters is better.\n\nIf time periods are duplicated or conflicted, the prior one in the list has higher priority.\n\nDo not set a time period over / ended at 00:00. Set AA:BB ~ 23:59 and 00:00 ~ CC:DD instead.</string>
     <string name="desc">"Append your custom text to the clock in a specified time period. eg &quot;Lunch 12:15&quot; in 12:00 ~ 12:30.
 [Touch here for settings. Reboot to apply.]"</string>
-    <string name="position">Position</string>
+    <string name="position">Additional text position</string>
     <string name="left">Left</string>
     <string name="right">Right</string>
     <string name="position_summary_1">"Append to the "</string>
@@ -38,4 +38,19 @@
     <string name="s07">0.7 X</string>
     <string name="s06">0.6 X</string>
     <string name="s05">0.5 X</string>
+    <string name="display">Expended statusbar</string>
+    <string name="display_summary_off">On statusbar only</string>
+    <string name="display_summary_on">Also on expended statusbar</string>
+    <string name="date">Date settings</string>
+    <string name="basic_first">Basic text first</string>
+    <string name="date_first">Date text first</string>
+    <string name="size_expended">Additional text size on expended statusbar</string>
+    <string name="display_date">Additional date text</string>
+    <string name="display_date_summary_off">No operation</string>
+    <string name="display_date_summary_on">Append date to the clock</string>
+    <string name="position_date">Additional date position</string>
+    <string name="size_date">Additional date size</string>
+    <string name="priority_date">Additional info priority(at same side)</string>
+    <string name="format_date">Date format</string>
+    <string name="format_msg">yy = Year (14)\nyyyy = Year (2014)\nM = Month (8)\nMM = Month (08)\nMMM = Month (Aug)\nd = Day (1)\ndd = Day (01)\nE = Day of week (Mon)\n\nNote: Please reference the document of SimpleDateFormat. Do not add any illegal letter.</string>
 </resources>
