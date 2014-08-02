@@ -1,3 +1,15 @@
+/**
+ * Copyright (C) 2014 xiaoxia.de
+ * 
+ * @author xiaoxia.de
+ * @date 2014
+ * @license MIT
+ *
+ * This file is subject to the terms and conditions defined in
+ * file 'LICENSE.txt', which is part of this source code package.
+ * 
+ */
+
 package de.xiaoxia.xmoretimetext;
 
 import android.os.Bundle;

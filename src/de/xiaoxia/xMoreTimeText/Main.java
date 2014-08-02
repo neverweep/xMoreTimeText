@@ -1,3 +1,15 @@
+/**
+ * Copyright (C) 2014 xiaoxia.de
+ * 
+ * @author xiaoxia.de
+ * @date 2014
+ * @license MIT
+ *
+ * This file is subject to the terms and conditions defined in
+ * file 'LICENSE.txt', which is part of this source code package.
+ * 
+ */
+
 package de.xiaoxia.xmoretimetext;
 
 import static de.robv.android.xposed.XposedHelpers.findAndHookMethod;
@@ -123,14 +135,19 @@ public class Main implements IXposedHookLoadPackage, IXposedHookInitPackageResou
 
         //读取语言设置
         String local = Locale.getDefault().getCountry();
+        String lan = Locale.getDefault().getLanguage(); 
         //根据语言设置默认文字
         if (local.contains("TW") || local.contains("HK") || local.contains("MO")) {
             preText = new String[] {
-                "淩晨", "早晨", "上午", "中午", "下午", "傍晚", "晚上"
+                "淩晨", "早晨", "上午", "中午", "中午", "下午", "傍晚", "晚上"
+            };
+        } else if(lan.contains("zh")){
+            preText = new String[] {
+                "凌晨", "早晨", "上午", "中午", "中午", "下午", "傍晚", "晚上"
             };
         } else {
             preText = new String[] {
-                "凌晨", "早晨", "上午", "中午", "下午", "傍晚", "晚上"
+                "AM", "AM", "AM", "AM", "PM", "PM", "PM", "PM"
             };
         }
 
@@ -186,14 +203,16 @@ public class Main implements IXposedHookLoadPackage, IXposedHookInitPackageResou
                             time = preText[1];
                         } else if (hm < 1100 && hm >= 800) {
                             time = preText[2];
-                        } else if (hm < 1400 && hm >= 1100) {
+                        } else if (hm < 1200 && hm >= 1100) {
                             time = preText[3];
-                        } else if (hm < 1730 && hm >= 1400) {
+                        } else if (hm < 1400 && hm >= 1200) {
                             time = preText[4];
-                        } else if (hm < 1930 && hm >= 1730) {
+                        } else if (hm < 1730 && hm >= 1400) {
                             time = preText[5];
-                        } else {
+                        } else if (hm < 1930 && hm >= 1730) {
                             time = preText[6];
+                        } else {
+                            time = preText[7];
                         }
                     }
 
