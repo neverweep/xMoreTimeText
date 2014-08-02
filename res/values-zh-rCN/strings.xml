@@ -53,4 +53,5 @@
     <string name="priority_date">附加信息显示顺序（同侧）</string>
     <string name="format_date">日期格式</string>
     <string name="format_msg">yy = 年（14）\nyyyy = 年 （2014）\nM = 月（8）\nMM = 月（08）\nd = 日（1）\ndd = 日（01）\nE = 星期（周一）\n\n注意：请参考 SimpleDateFormat 的使用手册，不要添加非法的英文字符。</string>
+    <string name="customize_setting">自定义设置</string>
 </resources>

@@ -6,6 +6,10 @@
             <SwitchPreference android:key="filter" android:title="@string/filter" android:summaryOff="@string/filter_summary_off" android:summaryOn="@string/filter_summary_on" android:defaultValue="false"/>
             <SwitchPreference android:key="display" android:defaultValue="false" android:title="@string/display" android:summaryOn="@string/display_summary_on" android:summaryOff="@string/display_summary_off"/>
             <ListPreference android:key="size_expended" android:entryValues="@array/size_values" android:entries="@array/size" android:dialogTitle="@string/size" android:positiveButtonText="@string/ok" android:negativeButtonText="@string/cancel" android:defaultValue="1.0" android:title="@string/size_expended" android:dependency="display"/>
+            <SwitchPreference android:key="customize" android:title="@string/customize" android:summaryOff="@string/customize_summary_off" android:summaryOn="@string/customize_summary_on" android:defaultValue="false"/>
+            <Preference android:key="setting_customize" android:title="@string/customize_setting" android:dependency="customize">
+                <intent android:action="android.intent.action.VIEW" android:targetPackage="de.xiaoxia.xmoretimetext" android:targetClass="de.xiaoxia.xmoretimetext.SettingCustomize" />
+            </Preference>
         </PreferenceCategory>
         <PreferenceCategory android:title="@string/date" android:key="cat_date">
             <SwitchPreference android:key="display_date" android:defaultValue="false" android:title="@string/display_date" android:summaryOn="@string/display_date_summary_on" android:summaryOff="@string/display_date_summary_off"/>
@@ -13,38 +17,5 @@
             <ListPreference android:key="position_date" android:entryValues="@array/position_values" android:positiveButtonText="@string/ok" android:entries="@array/position" android:negativeButtonText="@string/cancel" android:dialogTitle="@string/position_date" android:title="@string/position_date" android:defaultValue="true" android:dependency="display_date"/>
             <ListPreference android:key="priority_date" android:entryValues="@array/priority_values" android:positiveButtonText="@string/ok" android:entries="@array/priority" android:negativeButtonText="@string/cancel" android:dialogTitle="@string/priority_date" android:title="@string/priority_date" android:defaultValue="true" android:dependency="display_date"/>
             <ListPreference android:key="size_date" android:entryValues="@array/size_values" android:entries="@array/size" android:dialogTitle="@string/size_date" android:positiveButtonText="@string/ok" android:negativeButtonText="@string/cancel" android:defaultValue="1.0" android:title="@string/size_date" android:dependency="display_date"/>
-        </PreferenceCategory>
-        <PreferenceCategory android:title="@string/customize" android:key="cat_customize">
-            <SwitchPreference android:key="customize" android:title="@string/customize" android:summaryOff="@string/customize_summary_off" android:summaryOn="@string/customize_summary_on" android:defaultValue="false"/>
-            <EditTextPreference android:singleLine="true" android:dependency="customize" android:title="@string/pt" android:key="pt0" android:summary="@string/notset"/>
-            <de.xiaoxia.xmoretimetext.TimePreference android:dependency="customize" android:key="ps0" android:title="@string/ps" />
-            <de.xiaoxia.xmoretimetext.TimePreference android:dependency="customize" android:key="pe0" android:title="@string/pe" />
-            <EditTextPreference android:singleLine="true" android:dependency="customize" android:title="@string/pt" android:key="pt1" android:summary="@string/notset"/>
-            <de.xiaoxia.xmoretimetext.TimePreference android:dependency="customize" android:key="ps1" android:title="@string/ps" />
-            <de.xiaoxia.xmoretimetext.TimePreference android:dependency="customize" android:key="pe1" android:title="@string/pe" />
-            <EditTextPreference android:singleLine="true" android:dependency="customize" android:title="@string/pt" android:key="pt2" android:summary="@string/notset"/>
-            <de.xiaoxia.xmoretimetext.TimePreference android:dependency="customize" android:key="ps2" android:title="@string/ps" />
-            <de.xiaoxia.xmoretimetext.TimePreference android:dependency="customize" android:key="pe2" android:title="@string/pe" />
-            <EditTextPreference android:singleLine="true" android:dependency="customize" android:title="@string/pt" android:key="pt3" android:summary="@string/notset"/>
-            <de.xiaoxia.xmoretimetext.TimePreference android:dependency="customize" android:key="ps3" android:title="@string/ps" />
-            <de.xiaoxia.xmoretimetext.TimePreference android:dependency="customize" android:key="pe3" android:title="@string/pe" />
-            <EditTextPreference android:singleLine="true" android:dependency="customize" android:title="@string/pt" android:key="pt4" android:summary="@string/notset"/>
-            <de.xiaoxia.xmoretimetext.TimePreference android:dependency="customize" android:key="ps4" android:title="@string/ps" />
-            <de.xiaoxia.xmoretimetext.TimePreference android:dependency="customize" android:key="pe4" android:title="@string/pe" />
-            <EditTextPreference android:singleLine="true" android:dependency="customize" android:title="@string/pt" android:key="pt5" android:summary="@string/notset"/>
-            <de.xiaoxia.xmoretimetext.TimePreference android:dependency="customize" android:key="ps5" android:title="@string/ps" />
-            <de.xiaoxia.xmoretimetext.TimePreference android:dependency="customize" android:key="pe5" android:title="@string/pe" />
-            <EditTextPreference android:singleLine="true" android:dependency="customize" android:title="@string/pt" android:key="pt6" android:summary="@string/notset"/>
-            <de.xiaoxia.xmoretimetext.TimePreference android:dependency="customize" android:key="ps6" android:title="@string/ps" />
-            <de.xiaoxia.xmoretimetext.TimePreference android:dependency="customize" android:key="pe6" android:title="@string/pe" />
-            <EditTextPreference android:singleLine="true" android:dependency="customize" android:title="@string/pt" android:key="pt7" android:summary="@string/notset"/>
-            <de.xiaoxia.xmoretimetext.TimePreference android:dependency="customize" android:key="ps7" android:title="@string/ps" />
-            <de.xiaoxia.xmoretimetext.TimePreference android:dependency="customize" android:key="pe7" android:title="@string/pe" />
-            <EditTextPreference android:singleLine="true" android:dependency="customize" android:title="@string/pt" android:key="pt8" android:summary="@string/notset"/>
-            <de.xiaoxia.xmoretimetext.TimePreference android:dependency="customize" android:key="ps8" android:title="@string/ps" />
-            <de.xiaoxia.xmoretimetext.TimePreference android:dependency="customize" android:key="pe8" android:title="@string/pe" />
-            <EditTextPreference android:singleLine="true" android:dependency="customize" android:title="@string/pt" android:key="pt9" android:summary="@string/notset"/>
-            <de.xiaoxia.xmoretimetext.TimePreference android:dependency="customize" android:key="ps9" android:title="@string/ps" />
-            <de.xiaoxia.xmoretimetext.TimePreference android:dependency="customize" android:key="pe9" android:title="@string/pe" />
         </PreferenceCategory>
     </PreferenceScreen>

@@ -25,9 +25,9 @@ public final class R {
         public static final int ic_launcher=0x7f020003;
     }
     public static final class id {
-        public static final int about=0x7f080003;
-        public static final int clear=0x7f080001;
-        public static final int help=0x7f080002;
+        public static final int about=0x7f080001;
+        public static final int clear=0x7f080002;
+        public static final int help=0x7f080003;
         public static final int textView=0x7f080000;
     }
     public static final class layout {
@@ -36,6 +36,7 @@ public final class R {
     }
     public static final class menu {
         public static final int menu=0x7f070000;
+        public static final int menu_customize=0x7f070001;
     }
     public static final class string {
         public static final int about=0x7f060001;
@@ -47,6 +48,7 @@ public final class R {
         public static final int clear=0x7f060012;
         public static final int clear_msg=0x7f060013;
         public static final int customize=0x7f060006;
+        public static final int customize_setting=0x7f060035;
         public static final int customize_summary_off=0x7f060011;
         public static final int customize_summary_on=0x7f060010;
         public static final int date=0x7f060029;
@@ -94,5 +96,6 @@ public final class R {
     }
     public static final class xml {
         public static final int setting=0x7f040000;
+        public static final int setting_customize=0x7f040001;
     }
 }

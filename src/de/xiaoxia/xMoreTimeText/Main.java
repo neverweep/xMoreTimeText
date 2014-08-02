@@ -13,6 +13,7 @@
 package de.xiaoxia.xmoretimetext;
 
 import static de.robv.android.xposed.XposedHelpers.findAndHookMethod;
+
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -33,7 +34,7 @@ import de.robv.android.xposed.callbacks.XC_LoadPackage.LoadPackageParam;
 public class Main implements IXposedHookLoadPackage, IXposedHookInitPackageResources {
 
     private static final String PACKAGE_NAME = "com.android.systemui";
-    private static CharSequence time;
+    private static CharSequence time = "";
     private static String[] preText;
     private static Calendar calendar;
     private static SimpleDateFormat sdf;

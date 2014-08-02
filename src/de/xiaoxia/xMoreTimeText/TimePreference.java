@@ -33,7 +33,7 @@ public class TimePreference extends DialogPreference {
     @Override
     protected View onCreateDialogView() {
         picker = new TimePicker(getContext());
-        String strTimeFormat = android.provider.Settings.System.getString(Setting.cv, android.provider.Settings.System.TIME_12_24);
+        String strTimeFormat = android.provider.Settings.System.getString(SettingCustomize.cv, android.provider.Settings.System.TIME_12_24);
         if (strTimeFormat != null && strTimeFormat.equals("24")) {
             picker.setIs24HourView(true);
         }

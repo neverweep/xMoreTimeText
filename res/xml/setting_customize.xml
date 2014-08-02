@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+    <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android" android:title="@string/customize_setting">
+        <EditTextPreference android:singleLine="true" android:title="@string/pt" android:key="pt0" android:summary="@string/notset"/>
+        <de.xiaoxia.xmoretimetext.TimePreference android:key="ps0" android:title="@string/ps" />
+        <de.xiaoxia.xmoretimetext.TimePreference android:key="pe0" android:title="@string/pe" />
+        <EditTextPreference android:singleLine="true" android:title="@string/pt" android:key="pt1" android:summary="@string/notset"/>
+        <de.xiaoxia.xmoretimetext.TimePreference android:key="ps1" android:title="@string/ps" />
+        <de.xiaoxia.xmoretimetext.TimePreference android:key="pe1" android:title="@string/pe" />
+        <EditTextPreference android:singleLine="true" android:title="@string/pt" android:key="pt2" android:summary="@string/notset"/>
+        <de.xiaoxia.xmoretimetext.TimePreference android:key="ps2" android:title="@string/ps" />
+        <de.xiaoxia.xmoretimetext.TimePreference android:key="pe2" android:title="@string/pe" />
+        <EditTextPreference android:singleLine="true" android:title="@string/pt" android:key="pt3" android:summary="@string/notset"/>
+        <de.xiaoxia.xmoretimetext.TimePreference android:key="ps3" android:title="@string/ps" />
+        <de.xiaoxia.xmoretimetext.TimePreference android:key="pe3" android:title="@string/pe" />
+        <EditTextPreference android:singleLine="true" android:title="@string/pt" android:key="pt4" android:summary="@string/notset"/>
+        <de.xiaoxia.xmoretimetext.TimePreference android:key="ps4" android:title="@string/ps" />
+        <de.xiaoxia.xmoretimetext.TimePreference android:key="pe4" android:title="@string/pe" />
+        <EditTextPreference android:singleLine="true" android:title="@string/pt" android:key="pt5" android:summary="@string/notset"/>
+        <de.xiaoxia.xmoretimetext.TimePreference android:key="ps5" android:title="@string/ps" />
+        <de.xiaoxia.xmoretimetext.TimePreference android:key="pe5" android:title="@string/pe" />
+        <EditTextPreference android:singleLine="true" android:title="@string/pt" android:key="pt6" android:summary="@string/notset"/>
+        <de.xiaoxia.xmoretimetext.TimePreference android:key="ps6" android:title="@string/ps" />
+        <de.xiaoxia.xmoretimetext.TimePreference android:key="pe6" android:title="@string/pe" />
+        <EditTextPreference android:singleLine="true" android:title="@string/pt" android:key="pt7" android:summary="@string/notset"/>
+        <de.xiaoxia.xmoretimetext.TimePreference android:key="ps7" android:title="@string/ps" />
+        <de.xiaoxia.xmoretimetext.TimePreference android:key="pe7" android:title="@string/pe" />
+        <EditTextPreference android:singleLine="true" android:title="@string/pt" android:key="pt8" android:summary="@string/notset"/>
+        <de.xiaoxia.xmoretimetext.TimePreference android:key="ps8" android:title="@string/ps" />
+        <de.xiaoxia.xmoretimetext.TimePreference android:key="pe8" android:title="@string/pe" />
+        <EditTextPreference android:singleLine="true" android:title="@string/pt" android:key="pt9" android:summary="@string/notset"/>
+        <de.xiaoxia.xmoretimetext.TimePreference android:key="ps9" android:title="@string/ps" />
+        <de.xiaoxia.xmoretimetext.TimePreference android:key="pe9" android:title="@string/pe" />
+    </PreferenceScreen>

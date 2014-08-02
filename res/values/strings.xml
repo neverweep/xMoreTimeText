@@ -53,4 +53,5 @@
     <string name="priority_date">Additional info priority(at same side)</string>
     <string name="format_date">Date format</string>
     <string name="format_msg">yy = Year (14)\nyyyy = Year (2014)\nM = Month (8)\nMM = Month (08)\nMMM = Month (Aug)\nd = Day (1)\ndd = Day (01)\nE = Day of week (Mon)\n\nNote: Please reference the document of SimpleDateFormat. Do not add any illegal letter.</string>
+    <string name="customize_setting">Customize settings</string>
 </resources>
