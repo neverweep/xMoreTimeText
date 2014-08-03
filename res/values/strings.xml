@@ -41,8 +41,8 @@
     <string name="display">Expended statusbar</string>
     <string name="display_summary_off">On statusbar only</string>
     <string name="display_summary_on">Also on expended statusbar</string>
-    <string name="date">Date settings</string>
-    <string name="basic_first">Basic text first</string>
+    <string name="date">Date text settings</string>
+    <string name="basic_first">Info text first</string>
     <string name="date_first">Date text first</string>
     <string name="size_expended">Additional text size on expended statusbar</string>
     <string name="display_date">Additional date text</string>
@@ -50,8 +50,15 @@
     <string name="display_date_summary_on">Append date to the clock</string>
     <string name="position_date">Additional date position</string>
     <string name="size_date">Additional date size</string>
-    <string name="priority_date">Additional info priority(at same side)</string>
+    <string name="priority_date">Additional info priority(same side)</string>
     <string name="format_date">Date format</string>
-    <string name="format_msg">yy = Year (14)\nyyyy = Year (2014)\nM = Month (8)\nMM = Month (08)\nMMM = Month (Aug)\nd = Day (1)\ndd = Day (01)\nE = Day of week (Mon)\n\nNote: Please reference the document of SimpleDateFormat. Do not add any illegal letter.</string>
-    <string name="customize_setting">Customize settings</string>
+    <string name="format_msg">yy[yyyy] = Year (14[2014])\nM[MM, MMM] = Month (8[08, Aug])\nd[dd] = Day (1[01])\nE = Day of week (Mon)\nHH[H, hh, h] = Hour ()13[]13, 01, 1])\nmm[m] = Minute (02[2])\n## = Time Peorid Info Text\n\nNote: Please reference the document of SimpleDateFormat. Do not add any illegal letter.</string>
+    <string name="customize_setting">Customize time period settings</string>
+    <string name="info">Info text based on time period settings</string>
+    <string name="clock">Show stock clock</string>
+    <string name="clock_summary_off">Hide stock clock</string>
+    <string name="clock_summary_on">Show stock clock</string>
+    <string name="basic_info">Additional info text</string>
+    <string name="basic_info_summary_off">No operation</string>
+    <string name="basic_info_summary_on">Append info to the clock</string>
 </resources>

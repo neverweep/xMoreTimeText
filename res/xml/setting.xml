@@ -1,10 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
     <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
         <PreferenceCategory android:title="@string/basic" android:key="cat_basic">
-            <ListPreference android:key="position" android:entryValues="@array/position_values" android:positiveButtonText="@string/ok" android:entries="@array/position" android:negativeButtonText="@string/cancel" android:dialogTitle="@string/position" android:title="@string/position" android:defaultValue="true" />
-            <ListPreference android:key="size" android:entryValues="@array/size_values" android:entries="@array/size" android:dialogTitle="@string/size" android:positiveButtonText="@string/ok" android:negativeButtonText="@string/cancel" android:defaultValue="1.0" android:title="@string/size"/>
-            <SwitchPreference android:key="filter" android:title="@string/filter" android:summaryOff="@string/filter_summary_off" android:summaryOn="@string/filter_summary_on" android:defaultValue="false"/>
-            <SwitchPreference android:key="display" android:defaultValue="false" android:title="@string/display" android:summaryOn="@string/display_summary_on" android:summaryOff="@string/display_summary_off"/>
+            <SwitchPreference android:key="clock" android:title="@string/clock" android:summaryOff="@string/clock_summary_off" android:summaryOn="@string/clock_summary_on" android:defaultValue="true"/>
+            <SwitchPreference android:key="filter" android:title="@string/filter" android:summaryOff="@string/filter_summary_off" android:summaryOn="@string/filter_summary_on" android:defaultValue="false" android:dependency="clock"/>
+        </PreferenceCategory>
+        <PreferenceCategory android:key="cat_info" android:title="@string/info">
+            <SwitchPreference android:key="basic_info" android:title="@string/basic_info" android:summaryOff="@string/basic_info_summary_off" android:summaryOn="@string/basic_info_summary_on" android:defaultValue="true"/>
+            <ListPreference android:key="position" android:entryValues="@array/position_values" android:positiveButtonText="@string/ok" android:entries="@array/position" android:negativeButtonText="@string/cancel" android:dialogTitle="@string/position" android:title="@string/position" android:defaultValue="true" android:dependency="basic_info"/>
+            <ListPreference android:key="size" android:entryValues="@array/size_values" android:entries="@array/size" android:dialogTitle="@string/size" android:positiveButtonText="@string/ok" android:negativeButtonText="@string/cancel" android:defaultValue="1.0" android:title="@string/size" android:dependency="basic_info"/>
+            <SwitchPreference android:key="display" android:defaultValue="false" android:title="@string/display" android:summaryOn="@string/display_summary_on" android:summaryOff="@string/display_summary_off" android:dependency="basic_info"/>
             <ListPreference android:key="size_expended" android:entryValues="@array/size_values" android:entries="@array/size" android:dialogTitle="@string/size" android:positiveButtonText="@string/ok" android:negativeButtonText="@string/cancel" android:defaultValue="1.0" android:title="@string/size_expended" android:dependency="display"/>
             <SwitchPreference android:key="customize" android:title="@string/customize" android:summaryOff="@string/customize_summary_off" android:summaryOn="@string/customize_summary_on" android:defaultValue="false"/>
             <Preference android:key="setting_customize" android:title="@string/customize_setting" android:dependency="customize">

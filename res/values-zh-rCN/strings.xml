@@ -41,8 +41,8 @@
     <string name="display">扩展状态栏</string>
     <string name="display_summary_off">仅在状态栏显示</string>
     <string name="display_summary_on">也在扩展状态栏显示</string>
-    <string name="date">日期设置</string>
-    <string name="basic_first">基本文字优先</string>
+    <string name="date">日期文字设置</string>
+    <string name="basic_first">信息文字优先</string>
     <string name="date_first">日期文字优先</string>
     <string name="size_expended">扩展状态栏附加文字大小</string>
     <string name="display_date">附加日期文字</string>
@@ -52,6 +52,13 @@
     <string name="size_date">附加日期文字大小</string>
     <string name="priority_date">附加信息显示顺序（同侧）</string>
     <string name="format_date">日期格式</string>
-    <string name="format_msg">yy = 年（14）\nyyyy = 年 （2014）\nM = 月（8）\nMM = 月（08）\nd = 日（1）\ndd = 日（01）\nE = 星期（周一）\n\n注意：请参考 SimpleDateFormat 的使用手册，不要添加非法的英文字符。</string>
-    <string name="customize_setting">自定义设置</string>
+    <string name="format_msg">yy[yyyy] = 年 (14[2014])\nM[MM, MMM] = 月 (8[08, 8月])\nd[dd] = 日 (1[01])\nE = 星期 (周一)\nHH[H, hh, h] = 小时 ()13[]13, 01, 1])\nmm[m] = 分钟 (02[2])\n## = 时间段信息文本\n\n注意：请参考 SimpleDateFormat 的使用手册，不要添加非法的英文字符。</string>
+    <string name="customize_setting">自定义时间段和文本设置</string>
+    <string name="info">基于时间段的信息文字设置</string>
+    <string name="clock">显示原生时钟</string>
+    <string name="clock_summary_off">隐藏原生时钟</string>
+    <string name="clock_summary_on">显示原生时钟</string>
+    <string name="basic_info">附加信息文本</string>
+    <string name="basic_info_summary_off">无操作</string>
+    <string name="basic_info_summary_on">附加信息文本到时钟</string>
 </resources>

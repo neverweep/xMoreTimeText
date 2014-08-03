@@ -17,6 +17,7 @@ import android.preference.EditTextPreference;
 import android.preference.ListPreference;
 import android.preference.PreferenceActivity;
 import android.preference.PreferenceManager;
+import android.preference.SwitchPreference;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -28,6 +29,7 @@ import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 public class Setting extends PreferenceActivity implements OnSharedPreferenceChangeListener {
     private ListPreference lp;
     private EditTextPreference etp;
+    private SwitchPreference sp;
 
     @SuppressWarnings("deprecation")
     @Override
@@ -88,6 +90,32 @@ public class Setting extends PreferenceActivity implements OnSharedPreferenceCha
     @Override
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
         //设置有变化、则重新读取设置并显示在界面上
+        if(key.equals("clock")){
+            sp = (SwitchPreference) findPreference("clock");
+            if(sp.isChecked() == false){
+                sp = (SwitchPreference) findPreference("filter");
+                sp.setChecked(false);
+            }
+            return;
+        }
+        if(key.equals("display")){
+            sp = (SwitchPreference) findPreference("display");
+            lp = (ListPreference) findPreference("size_expended");
+            lp.setEnabled(sp.isChecked());
+            return;
+        }
+        if(key.equals("basic_info")){
+            sp = (SwitchPreference) findPreference("basic_info");
+            if(sp.isChecked()){
+                sp = (SwitchPreference) findPreference("display");
+                lp = (ListPreference) findPreference("size_expended");
+                lp.setEnabled(sp.isChecked());
+            }else{
+                sp = (SwitchPreference) findPreference("display");
+                sp.setChecked(false);
+            }
+            return;
+        }
         if(key.equals("position")){
             lp = (ListPreference) findPreference("position");
             if(lp.getValue().toString().equals("true")){

@@ -44,9 +44,15 @@ public final class R {
         public static final int app_name=0x7f060000;
         public static final int basic=0x7f060007;
         public static final int basic_first=0x7f06002a;
+        public static final int basic_info=0x7f06003a;
+        public static final int basic_info_summary_off=0x7f06003b;
+        public static final int basic_info_summary_on=0x7f06003c;
         public static final int cancel=0x7f060005;
         public static final int clear=0x7f060012;
         public static final int clear_msg=0x7f060013;
+        public static final int clock=0x7f060037;
+        public static final int clock_summary_off=0x7f060038;
+        public static final int clock_summary_on=0x7f060039;
         public static final int customize=0x7f060006;
         public static final int customize_setting=0x7f060035;
         public static final int customize_summary_off=0x7f060011;
@@ -67,6 +73,7 @@ public final class R {
         public static final int format_msg=0x7f060034;
         public static final int help=0x7f060014;
         public static final int help_msg=0x7f060015;
+        public static final int info=0x7f060036;
         public static final int left=0x7f060018;
         public static final int notset=0x7f06000d;
         public static final int ok=0x7f060004;

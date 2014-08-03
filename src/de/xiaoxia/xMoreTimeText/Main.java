@@ -20,6 +20,7 @@ import java.util.Calendar;
 import java.util.Locale;
 import android.annotation.SuppressLint;
 import android.text.SpannableString;
+import android.text.TextUtils;
 import android.text.style.RelativeSizeSpan;
 import android.widget.TextView;
 import de.robv.android.xposed.IXposedHookInitPackageResources;
@@ -35,18 +36,25 @@ public class Main implements IXposedHookLoadPackage, IXposedHookInitPackageResou
 
     private static final String PACKAGE_NAME = "com.android.systemui";
     private static CharSequence time = "";
+    private static CharSequence timeText;
+    private static SpannableString timeSpan;
+    private static SpannableString dateSpan;
+    private static SpannableString timeExpendedSpan;
     private static String[] preText;
     private static Calendar calendar;
     private static SimpleDateFormat sdf;
     private static DecimalFormat df = new DecimalFormat("00");
-    private static SpannableString timeText;
     private static String originalText;
+    private static String date;
     private static Object vClock = null;
-    private static String temp;
     private static Boolean isFormatOk;
 
     //使用Xposed提供的XSharedPreferences方法来读取android内置的SharedPreferences设置
     private final static XSharedPreferences prefs = new XSharedPreferences(Main.class.getPackage().getName());
+    //是否显示信息
+    protected final static Boolean _info = prefs.getBoolean("basic_info", true);
+    //显示时钟
+    protected final static Boolean _clock = prefs.getBoolean("clock", false);
     //删除原字符
     protected final static Boolean _filter = prefs.getBoolean("filter", false);
     //自定义
@@ -217,78 +225,81 @@ public class Main implements IXposedHookLoadPackage, IXposedHookInitPackageResou
                         }
                     }
 
-                    //写入param
-                    originalText = originalText.trim();
                     if(_position){
                         //基本文字居左
+                        if(_info){
+                            timeSpan = new SpannableString(time + " ");
+                            timeSpan.setSpan(new RelativeSizeSpan(_size), 0, timeSpan.length(), 0);
+                        }else{
+                            timeSpan = new SpannableString("");
+                        }
                         if(vClock != null){
                             //如果显示状态栏
+                            originalText = _clock ? originalText.trim() : "";
                             if(_display_date && isFormatOk){
-                                //如果显示日期
-                                temp = sdf.format(System.currentTimeMillis());
+                                //如果显示日期且格式正确
+                                date = sdf.format(System.currentTimeMillis()).replace("##", time);
                                 if(_position_date){
-                                    //日期方向靠左
+                                    //如果靠左
+                                    dateSpan = new SpannableString(date + " ");
+                                    dateSpan.setSpan(new RelativeSizeSpan(_size_date), 0, dateSpan.length(), 0);
                                     if(_priority_date){
-                                        //基本文字优先
-                                        timeText = new SpannableString(time + " " + temp + " " + originalText);
-                                        timeText.setSpan(new RelativeSizeSpan(_size), 0, time.length() + 1, 0);
-                                        timeText.setSpan(new RelativeSizeSpan(_size_date), time.length() + 1, temp.length() + 1, 0);
+                                        //如果基本文字优先
+                                        timeText = TextUtils.concat(timeSpan, dateSpan, originalText);
                                     }else{
-                                        //日期文字优先
-                                        timeText = new SpannableString(temp + " " + time + " " + originalText);
-                                        timeText.setSpan(new RelativeSizeSpan(_size_date), 0, temp.length() + 1, 0);
-                                        timeText.setSpan(new RelativeSizeSpan(_size), temp.length() + 1, temp.length() + time.length() + 2, 0);
+                                        timeText = TextUtils.concat(dateSpan, timeSpan, originalText);
                                     }
                                 }else{
-                                    //日期方向靠右
-                                    timeText = new SpannableString(time + " " + originalText + " " + temp);
-                                    timeText.setSpan(new RelativeSizeSpan(_size), 0, temp.length() + 1, 0);
-                                    timeText.setSpan(new RelativeSizeSpan(_size_date), time.length() + originalText.length() + 1, timeText.length(), 0);
+                                    //如果靠右
+                                    dateSpan = new SpannableString(" " + date);
+                                    dateSpan.setSpan(new RelativeSizeSpan(_size_date), 0, dateSpan.length(), 0);
+                                    timeText = TextUtils.concat(timeSpan, originalText, dateSpan);
                                 }
                             }else{
-                                timeText = new SpannableString(time + " " + originalText);
-                                timeText.setSpan(new RelativeSizeSpan(_size), 0, time.length(), 0);
+                                //没有则仅显示基本信息
+                                timeText = TextUtils.concat(timeSpan, originalText);
                             }
-                        }else{
-                            //如果扩展状态栏显示
-                            timeText = new SpannableString(time + " " + originalText);
-                            timeText.setSpan(new RelativeSizeSpan(_size_expended), 0, time.length(), 0);
+                        }else if(_display){
+                            //设置扩展状态栏
+                            timeExpendedSpan = new SpannableString(time + " ");
+                            timeExpendedSpan.setSpan(new RelativeSizeSpan(_size_expended), 0, timeExpendedSpan.length(), 0);
+                            timeText = TextUtils.concat(timeExpendedSpan, originalText);
                         }
                     }else{
+                        //基本文字居右
+                        if(_info){
+                            timeSpan = new SpannableString(" " + time);
+                            timeSpan.setSpan(new RelativeSizeSpan(_size), 0, timeSpan.length(), 0);
+                        }else{
+                            timeSpan = new SpannableString("");
+                        }
                         if(vClock != null){
-                            //状态栏显示
+                            originalText = _clock ? originalText.trim() : "";
                             if(_display_date && isFormatOk){
-                                //显示日期
-                                temp = sdf.format(System.currentTimeMillis());
+                                date = sdf.format(System.currentTimeMillis()).replace("##", time);
                                 if(_position_date){
-                                    //日期方向靠左
-                                    timeText = new SpannableString(temp + " " + originalText + " " + time);
-                                    timeText.setSpan(new RelativeSizeSpan(_size_date), 0, temp.length() + 1, 0);
-                                    timeText.setSpan(new RelativeSizeSpan(_size), temp.length() + originalText.length() + 1, timeText.length(), 0);
+                                    dateSpan = new SpannableString(date + " ");
+                                    dateSpan.setSpan(new RelativeSizeSpan(_size_date), 0, dateSpan.length(), 0);
+                                    timeText = TextUtils.concat(dateSpan, originalText, timeSpan);
                                 }else{
-                                    //日期方向靠右
+                                    dateSpan = new SpannableString(" " + date);
+                                    dateSpan.setSpan(new RelativeSizeSpan(_size_date), 0, dateSpan.length(), 0);
                                     if(_priority_date){
-                                        //基本文字优先
-                                        timeText = new SpannableString(originalText + " " + time + " " + temp);
-                                        timeText.setSpan(new RelativeSizeSpan(_size), originalText.length(), (originalText + time).length() + 1, 0);
-                                        timeText.setSpan(new RelativeSizeSpan(_size_date), originalText.length() + time.length() + 2, timeText.length(), 0);
+                                        timeText = TextUtils.concat(originalText, timeSpan, dateSpan);
                                     }else{
-                                        //日期文字优先
-                                        timeText = new SpannableString(originalText + " " + temp + " " + time);
-                                        timeText.setSpan(new RelativeSizeSpan(_size_date), originalText.length(), originalText.length() + temp.length() + 1, 0);
-                                        timeText.setSpan(new RelativeSizeSpan(_size), originalText.length() + temp.length() + 2, timeText.length(), 0);
+                                        timeText = TextUtils.concat(originalText, dateSpan, timeSpan);
                                     }
                                 }
                             }else{
-                                timeText = new SpannableString(originalText + " " + time);
-                                timeText.setSpan(new RelativeSizeSpan(_size), originalText.length(), timeText.length(), 0);
+                                timeText = TextUtils.concat(originalText, timeSpan);
                             }
-                        }else{
-                            //扩展状态栏显示
-                            timeText = new SpannableString(originalText + " " + time);
-                            timeText.setSpan(new RelativeSizeSpan(_size), originalText.length(), timeText.length(), 0);
+                        }else if(_display){
+                            timeExpendedSpan = new SpannableString(" " + time);
+                            timeExpendedSpan.setSpan(new RelativeSizeSpan(_size_expended), 0, timeExpendedSpan.length(), 0);
+                            timeText = TextUtils.concat(originalText, timeExpendedSpan);
                         }
                     }
+                    //写入param
                     param.setResult(timeText);
                 }
             }
