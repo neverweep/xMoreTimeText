@@ -21,7 +21,7 @@
     <string name="clear_msg">您确定要删除时间段设定吗？\n\n此操作无法撤消！</string>
     <string name="help">帮助</string>
     <string name="help_msg">没有数据有效性检查，请确保您输入的时间段正确。\n\n时间段标题是可选设置，尽量减少字符。\n\n如果时间段之间重复或者冲突，排列在前的时间段设置拥有更高的优先级。\n\n时间段请勿越过或结束于 00:00，如果有需要请设置为 AA:BB ~ 23:59 和 00:00 ~ CC:DD。</string>
-    <string name="desc">"在您的时钟旁添加文字，如“凌晨 05:30”，“早晨 07:30”。可以自定义多个文字和时间段。
+    <string name="desc">"完全掌控您的时钟文字。
 [点击这里进入设置，重启后生效]"</string>
     <string name="position">附加文字位置</string>
     <string name="left">左边</string>
@@ -51,8 +51,8 @@
     <string name="position_date">附加日期文字位置</string>
     <string name="size_date">附加日期文字大小</string>
     <string name="priority_date">附加信息显示顺序（同侧）</string>
-    <string name="format_date">日期格式</string>
-    <string name="format_msg">yy[yyyy] = 年 (14[2014])\nM[MM, MMM] = 月 (8[08, 8月])\nd[dd] = 日 (1[01])\nE = 星期 (周一)\nHH[H, hh, h] = 小时 ()13[]13, 01, 1])\nmm[m] = 分钟 (02[2])\n## = 时间段信息文本\n\n注意：请参考 SimpleDateFormat 的使用手册，不要添加非法的英文字符。</string>
+    <string name="format_date">附加日期格式</string>
+    <string name="format_msg">yy [yyyy] = 年 (14 [2014])\nM [MM, MMM] = 月 (8 [08, 8月])\nd [dd] = 日 (1 [01])\nE = 星期 (周一)\nHH [H, hh, h] = 小时 (13 [13, 01, 1])\nmm [m] = 分钟 (02 [2])\na = 上下午标记 (上午)\n## = 时间段信息文本\n\n注意：请参考 SimpleDateFormat 的使用手册，不要添加非法的英文字符。</string>
     <string name="customize_setting">自定义时间段和文本设置</string>
     <string name="info">基于时间段的信息文字设置</string>
     <string name="clock">显示原生时钟</string>
@@ -61,4 +61,17 @@
     <string name="basic_info">附加信息文本</string>
     <string name="basic_info_summary_off">无操作</string>
     <string name="basic_info_summary_on">附加信息文本到时钟</string>
+    <string name="press_color_to_apply">点击颜色应用</string>
+    <string name="dialog_color_picker">颜色拾取器</string>
+    <string name="color_clock">原生时钟文本颜色</string>
+    <string name="color_clock_summary_on">自定义颜色</string>
+    <string name="color_clock_summary_off">系统默认</string>
+    <string name="color_clock_s">原生时钟文本颜色</string>
+    <string name="color_clock_summary">选择您喜欢的原生时钟文本颜色</string>
+    <string name="color_info">信息文本颜色</string>
+    <string name="color_info_summary">选择您喜欢的信息文本颜色</string>
+    <string name="color_info_s">信息文本颜色</string>
+    <string name="color_date">日期文本颜色</string>
+    <string name="color_date_summary">选择您喜欢的日期文本颜色</string>
+    <string name="color_date_s">日期文本颜色</string>
 </resources>

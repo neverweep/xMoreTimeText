@@ -25,14 +25,20 @@ public final class R {
         public static final int ic_launcher=0x7f020003;
     }
     public static final class id {
-        public static final int about=0x7f080001;
-        public static final int clear=0x7f080002;
-        public static final int help=0x7f080003;
+        public static final int about=0x7f080006;
+        public static final int clear=0x7f080007;
+        public static final int color_picker_view=0x7f080001;
+        public static final int help=0x7f080008;
+        public static final int hex_val=0x7f080003;
+        public static final int new_color_panel=0x7f080005;
+        public static final int old_color_panel=0x7f080004;
         public static final int textView=0x7f080000;
+        public static final int text_hex_wrapper=0x7f080002;
     }
     public static final class layout {
         public static final int about=0x7f030000;
-        public static final int help=0x7f030001;
+        public static final int dialog_color_picker=0x7f030001;
+        public static final int help=0x7f030002;
     }
     public static final class menu {
         public static final int menu=0x7f070000;
@@ -53,6 +59,17 @@ public final class R {
         public static final int clock=0x7f060037;
         public static final int clock_summary_off=0x7f060038;
         public static final int clock_summary_on=0x7f060039;
+        public static final int color_clock=0x7f06003f;
+        public static final int color_clock_s=0x7f060042;
+        public static final int color_clock_summary=0x7f060043;
+        public static final int color_clock_summary_off=0x7f060041;
+        public static final int color_clock_summary_on=0x7f060040;
+        public static final int color_date=0x7f060047;
+        public static final int color_date_s=0x7f060049;
+        public static final int color_date_summary=0x7f060048;
+        public static final int color_info=0x7f060044;
+        public static final int color_info_s=0x7f060046;
+        public static final int color_info_summary=0x7f060045;
         public static final int customize=0x7f060006;
         public static final int customize_setting=0x7f060035;
         public static final int customize_summary_off=0x7f060011;
@@ -60,6 +77,7 @@ public final class R {
         public static final int date=0x7f060029;
         public static final int date_first=0x7f06002b;
         public static final int desc=0x7f060016;
+        public static final int dialog_color_picker=0x7f06003e;
         public static final int display=0x7f060026;
         public static final int display_date=0x7f06002d;
         public static final int display_date_summary_off=0x7f06002e;
@@ -82,6 +100,7 @@ public final class R {
         public static final int position_date=0x7f060030;
         public static final int position_summary_1=0x7f06001a;
         public static final int position_summary_2=0x7f06001b;
+        public static final int press_color_to_apply=0x7f06003d;
         public static final int priority_date=0x7f060032;
         public static final int ps=0x7f060009;
         public static final int pt=0x7f06000b;

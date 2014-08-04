@@ -18,9 +18,11 @@ import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Locale;
+
 import android.annotation.SuppressLint;
 import android.text.SpannableString;
 import android.text.TextUtils;
+import android.text.style.ForegroundColorSpan;
 import android.text.style.RelativeSizeSpan;
 import android.widget.TextView;
 import de.robv.android.xposed.IXposedHookInitPackageResources;
@@ -40,6 +42,7 @@ public class Main implements IXposedHookLoadPackage, IXposedHookInitPackageResou
     private static SpannableString timeSpan;
     private static SpannableString dateSpan;
     private static SpannableString timeExpendedSpan;
+    private static SpannableString originalTextSpan;
     private static String[] preText;
     private static Calendar calendar;
     private static SimpleDateFormat sdf;
@@ -48,6 +51,7 @@ public class Main implements IXposedHookLoadPackage, IXposedHookInitPackageResou
     private static String date;
     private static Object vClock = null;
     private static Boolean isFormatOk;
+    private static TextView textView;
 
     //使用Xposed提供的XSharedPreferences方法来读取android内置的SharedPreferences设置
     private final static XSharedPreferences prefs = new XSharedPreferences(Main.class.getPackage().getName());
@@ -77,6 +81,18 @@ public class Main implements IXposedHookLoadPackage, IXposedHookInitPackageResou
     protected final static Float _size_date = Float.valueOf(prefs.getString("size_date", "1.0"));
     //自定义大小（扩展状态栏）
     protected final static Float _size_expended = Float.valueOf(prefs.getString("size_expended", "1.0"));
+    //自定义原生时钟颜色
+    protected final static int _color_clock = prefs.getInt("color_clock", -16777216);
+    //自定义原生时钟颜色开关
+    protected final static Boolean _color_clock_s = prefs.getBoolean("color_clock_s", false);
+    //自定义信息颜色
+    protected final static int _color_info = prefs.getInt("color_info", -16777216);
+    //自定义信息颜色开关
+    protected final static Boolean _color_info_s =  prefs.getBoolean("color_info_s", false);
+    //自定义日期颜色
+    protected final static int _color_date = prefs.getInt("color_date", -16777216);
+    //自定义日期颜色开关
+    protected final static Boolean _color_date_s =  prefs.getBoolean("color_date_s", false);
     //判断时间段是否可用的布尔数组
     private Boolean[] pValidaty = {
         false, false, false, false, false, false, false, false, false, false
@@ -175,7 +191,7 @@ public class Main implements IXposedHookLoadPackage, IXposedHookInitPackageResou
             sdf = new SimpleDateFormat(_format_date);
 
         //勾在Clock更新后
-        findAndHookMethod("com.android.systemui.statusbar.policy.Clock", lpparam.classLoader, "getSmallTime", new XC_MethodHook(){
+        findAndHookMethod("com.android.systemui.statusbar.policy.Clock", lpparam.classLoader, _filter ? "updateClock" : "getSmallTime", new XC_MethodHook(){
             @Override
             protected void afterHookedMethod(MethodHookParam param) {
                 //获取vClock对象
@@ -184,7 +200,12 @@ public class Main implements IXposedHookLoadPackage, IXposedHookInitPackageResou
                 //如果vClock == null 说明此时是扩展状态栏，如果没有在扩展显示的必要，则直接跳过以下所有步骤
                 if(vClock != null || _display){
                     //获取时钟的文字
-                    originalText = param.getResult().toString();
+                    if(_filter){
+                        textView = (TextView) param.thisObject; //所以直接获取这个对象
+                        originalText = (String) textView.getText();
+                    }else{
+                        originalText = param.getResult().toString();
+                    }
 
                     //如果打开过滤则用正则表达式去除原始时间中的文字
                     if (_filter) {
@@ -204,7 +225,7 @@ public class Main implements IXposedHookLoadPackage, IXposedHookInitPackageResou
                                 break;
                             }
                         }
-                    } else {
+                    } else if(_info){
                         //时间判断
                         if (hm < 600 && hm >= 0) {
                             time = preText[0];
@@ -223,6 +244,8 @@ public class Main implements IXposedHookLoadPackage, IXposedHookInitPackageResou
                         } else {
                             time = preText[7];
                         }
+                    }else{
+                        time = "";
                     }
 
                     if(_position){
@@ -230,12 +253,19 @@ public class Main implements IXposedHookLoadPackage, IXposedHookInitPackageResou
                         if(_info){
                             timeSpan = new SpannableString(time + " ");
                             timeSpan.setSpan(new RelativeSizeSpan(_size), 0, timeSpan.length(), 0);
+                            if(_color_info_s){
+                                timeSpan.setSpan(new ForegroundColorSpan(_color_info), 0, timeSpan.length(), 0);
+                            }
                         }else{
                             timeSpan = new SpannableString("");
                         }
                         if(vClock != null){
                             //如果显示状态栏
                             originalText = _clock ? originalText.trim() : "";
+                            originalTextSpan =  new SpannableString(originalText);
+                            if(_clock && _color_clock_s){
+                                originalTextSpan.setSpan(new ForegroundColorSpan(_color_clock), 0, originalTextSpan.length(), 0);
+                            }
                             if(_display_date && isFormatOk){
                                 //如果显示日期且格式正确
                                 date = sdf.format(System.currentTimeMillis()).replace("##", time);
@@ -243,21 +273,25 @@ public class Main implements IXposedHookLoadPackage, IXposedHookInitPackageResou
                                     //如果靠左
                                     dateSpan = new SpannableString(date + " ");
                                     dateSpan.setSpan(new RelativeSizeSpan(_size_date), 0, dateSpan.length(), 0);
+                                    if(_color_date_s){
+                                        dateSpan.setSpan(new ForegroundColorSpan(_color_date), 0, dateSpan.length(), 0);
+                                    }
                                     if(_priority_date){
                                         //如果基本文字优先
-                                        timeText = TextUtils.concat(timeSpan, dateSpan, originalText);
+                                        timeText = TextUtils.concat(timeSpan, dateSpan, originalTextSpan);
                                     }else{
-                                        timeText = TextUtils.concat(dateSpan, timeSpan, originalText);
+                                        timeText = TextUtils.concat(dateSpan, timeSpan, originalTextSpan);
                                     }
                                 }else{
                                     //如果靠右
                                     dateSpan = new SpannableString(" " + date);
                                     dateSpan.setSpan(new RelativeSizeSpan(_size_date), 0, dateSpan.length(), 0);
-                                    timeText = TextUtils.concat(timeSpan, originalText, dateSpan);
+                                    dateSpan.setSpan(new ForegroundColorSpan(_color_date), 0, dateSpan.length(), 0);
+                                    timeText = TextUtils.concat(timeSpan, originalTextSpan, dateSpan);
                                 }
                             }else{
                                 //没有则仅显示基本信息
-                                timeText = TextUtils.concat(timeSpan, originalText);
+                                timeText = TextUtils.concat(timeSpan, originalTextSpan);
                             }
                         }else if(_display){
                             //设置扩展状态栏
@@ -270,28 +304,39 @@ public class Main implements IXposedHookLoadPackage, IXposedHookInitPackageResou
                         if(_info){
                             timeSpan = new SpannableString(" " + time);
                             timeSpan.setSpan(new RelativeSizeSpan(_size), 0, timeSpan.length(), 0);
+                            if(_color_info_s){
+                                timeSpan.setSpan(new ForegroundColorSpan(_color_info), 0, timeSpan.length(), 0);
+                            }
                         }else{
                             timeSpan = new SpannableString("");
                         }
                         if(vClock != null){
                             originalText = _clock ? originalText.trim() : "";
+                            originalTextSpan =  new SpannableString(originalText);
+                            if(_clock && _color_clock_s){
+                                originalTextSpan.setSpan(new ForegroundColorSpan(_color_clock), 0, originalTextSpan.length(), 0);
+                            }
                             if(_display_date && isFormatOk){
                                 date = sdf.format(System.currentTimeMillis()).replace("##", time);
                                 if(_position_date){
                                     dateSpan = new SpannableString(date + " ");
                                     dateSpan.setSpan(new RelativeSizeSpan(_size_date), 0, dateSpan.length(), 0);
-                                    timeText = TextUtils.concat(dateSpan, originalText, timeSpan);
+                                    dateSpan.setSpan(new ForegroundColorSpan(_color_date), 0, dateSpan.length(), 0);
+                                    timeText = TextUtils.concat(dateSpan, originalTextSpan, timeSpan);
                                 }else{
                                     dateSpan = new SpannableString(" " + date);
                                     dateSpan.setSpan(new RelativeSizeSpan(_size_date), 0, dateSpan.length(), 0);
+                                    if(_color_date_s){
+                                        dateSpan.setSpan(new ForegroundColorSpan(_color_date), 0, dateSpan.length(), 0);
+                                    }
                                     if(_priority_date){
-                                        timeText = TextUtils.concat(originalText, timeSpan, dateSpan);
+                                        timeText = TextUtils.concat(originalTextSpan, timeSpan, dateSpan);
                                     }else{
-                                        timeText = TextUtils.concat(originalText, dateSpan, timeSpan);
+                                        timeText = TextUtils.concat(originalTextSpan, dateSpan, timeSpan);
                                     }
                                 }
                             }else{
-                                timeText = TextUtils.concat(originalText, timeSpan);
+                                timeText = TextUtils.concat(originalTextSpan, timeSpan);
                             }
                         }else if(_display){
                             timeExpendedSpan = new SpannableString(" " + time);
@@ -299,8 +344,13 @@ public class Main implements IXposedHookLoadPackage, IXposedHookInitPackageResou
                             timeText = TextUtils.concat(originalText, timeExpendedSpan);
                         }
                     }
-                    //写入param
-                    param.setResult(timeText);
+                    if(_filter){
+                        //写入textView
+                        textView.setText(timeText);
+                    }else{
+                        //写入param
+                        param.setResult(timeText);
+                    }
                 }
             }
         });

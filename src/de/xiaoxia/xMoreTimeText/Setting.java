@@ -95,6 +95,8 @@ public class Setting extends PreferenceActivity implements OnSharedPreferenceCha
             if(sp.isChecked() == false){
                 sp = (SwitchPreference) findPreference("filter");
                 sp.setChecked(false);
+                sp = (SwitchPreference) findPreference("color_clock_s");
+                sp.setChecked(false);
             }
             return;
         }
@@ -102,6 +104,14 @@ public class Setting extends PreferenceActivity implements OnSharedPreferenceCha
             sp = (SwitchPreference) findPreference("display");
             lp = (ListPreference) findPreference("size_expended");
             lp.setEnabled(sp.isChecked());
+            return;
+        }
+        if(key.equals("display_date")){
+            sp = (SwitchPreference) findPreference("display_date");
+            if(sp.isChecked() == false){
+                sp = (SwitchPreference) findPreference("color_date_s");
+                sp.setChecked(false);
+            }
             return;
         }
         if(key.equals("basic_info")){
@@ -112,6 +122,8 @@ public class Setting extends PreferenceActivity implements OnSharedPreferenceCha
                 lp.setEnabled(sp.isChecked());
             }else{
                 sp = (SwitchPreference) findPreference("display");
+                sp.setChecked(false);
+                sp = (SwitchPreference) findPreference("color_info_s");
                 sp.setChecked(false);
             }
             return;
