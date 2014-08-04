@@ -286,7 +286,9 @@ public class Main implements IXposedHookLoadPackage, IXposedHookInitPackageResou
                                     //Èç¹û¿¿ÓÒ
                                     dateSpan = new SpannableString(" " + date);
                                     dateSpan.setSpan(new RelativeSizeSpan(_size_date), 0, dateSpan.length(), 0);
-                                    dateSpan.setSpan(new ForegroundColorSpan(_color_date), 0, dateSpan.length(), 0);
+                                    if(_color_date_s){
+                                        dateSpan.setSpan(new ForegroundColorSpan(_color_date), 0, dateSpan.length(), 0);
+                                    }
                                     timeText = TextUtils.concat(timeSpan, originalTextSpan, dateSpan);
                                 }
                             }else{
@@ -321,7 +323,9 @@ public class Main implements IXposedHookLoadPackage, IXposedHookInitPackageResou
                                 if(_position_date){
                                     dateSpan = new SpannableString(date + " ");
                                     dateSpan.setSpan(new RelativeSizeSpan(_size_date), 0, dateSpan.length(), 0);
-                                    dateSpan.setSpan(new ForegroundColorSpan(_color_date), 0, dateSpan.length(), 0);
+                                    if(_color_date_s){
+                                        dateSpan.setSpan(new ForegroundColorSpan(_color_date), 0, dateSpan.length(), 0);
+                                    }
                                     timeText = TextUtils.concat(dateSpan, originalTextSpan, timeSpan);
                                 }else{
                                     dateSpan = new SpannableString(" " + date);
