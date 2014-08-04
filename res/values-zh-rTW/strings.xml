@@ -74,4 +74,7 @@
     <string name="color_date">日期文本顏色</string>
     <string name="color_date_summary">選擇您喜歡的日期文本顏色</string>
     <string name="color_date_s">日期文本顏色</string>
+    <string name="force">強制應用</string>
+    <string name="force_summary_off">僅在模組無效時使用</string>
+    <string name="force_summary_on">鉤在 TextView 控制項</string>
 </resources>

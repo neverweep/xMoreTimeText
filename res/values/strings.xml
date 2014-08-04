@@ -74,4 +74,7 @@
     <string name="color_date">Date text color</string>
     <string name="color_date_summary">Pick your prefer date text color</string>
     <string name="color_date_s">Date text color</string>
+    <string name="force">Force to apply</string>
+    <string name="force_summary_off">Only turn on if no effect</string>
+    <string name="force_summary_on">Hook textview instead</string>
 </resources>

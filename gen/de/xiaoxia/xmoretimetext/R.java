@@ -87,6 +87,9 @@ public final class R {
         public static final int filter=0x7f060008;
         public static final int filter_summary_off=0x7f06000e;
         public static final int filter_summary_on=0x7f06000f;
+        public static final int force=0x7f06004a;
+        public static final int force_summary_off=0x7f06004b;
+        public static final int force_summary_on=0x7f06004c;
         public static final int format_date=0x7f060033;
         public static final int format_msg=0x7f060034;
         public static final int help=0x7f060014;

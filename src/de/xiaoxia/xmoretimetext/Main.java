@@ -93,6 +93,8 @@ public class Main implements IXposedHookLoadPackage, IXposedHookInitPackageResou
     protected final static int _color_date = prefs.getInt("color_date", -16777216);
     //自定义日期颜色开关
     protected final static Boolean _color_date_s =  prefs.getBoolean("color_date_s", false);
+    //强制更新
+    protected final static Boolean _force =  prefs.getBoolean("force", false);
     //判断时间段是否可用的布尔数组
     private Boolean[] pValidaty = {
         false, false, false, false, false, false, false, false, false, false
@@ -191,7 +193,7 @@ public class Main implements IXposedHookLoadPackage, IXposedHookInitPackageResou
             sdf = new SimpleDateFormat(_format_date);
 
         //勾在Clock更新后
-        findAndHookMethod("com.android.systemui.statusbar.policy.Clock", lpparam.classLoader, _filter ? "updateClock" : "getSmallTime", new XC_MethodHook(){
+        findAndHookMethod("com.android.systemui.statusbar.policy.Clock", lpparam.classLoader, _force ? "updateClock" : "getSmallTime", new XC_MethodHook(){
             @Override
             protected void afterHookedMethod(MethodHookParam param) {
                 //获取vClock对象
@@ -200,17 +202,16 @@ public class Main implements IXposedHookLoadPackage, IXposedHookInitPackageResou
                 //如果vClock == null 说明此时是扩展状态栏，如果没有在扩展显示的必要，则直接跳过以下所有步骤
                 if(vClock != null || _display){
                     //获取时钟的文字
-                    if(_filter){
+                    if(_force){
                         textView = (TextView) param.thisObject; //所以直接获取这个对象
-                        originalText = (String) textView.getText();
+                        originalText = (String) textView.getText().toString();
                     }else{
                         originalText = param.getResult().toString();
                     }
 
                     //如果打开过滤则用正则表达式去除原始时间中的文字
-                    if (_filter) {
+                    if(_filter)
                         originalText = originalText.replaceAll("([上下]午)|([AP]\\.?M\\.?)", "");
-                    }
 
                     calendar.setTimeInMillis(System.currentTimeMillis()); //设定日历控件为当前时间
                     int hm = Integer.parseInt(calendar.get(Calendar.HOUR_OF_DAY) + df.format(calendar.get(Calendar.MINUTE))); //读取时间，hhmm
@@ -348,7 +349,7 @@ public class Main implements IXposedHookLoadPackage, IXposedHookInitPackageResou
                             timeText = TextUtils.concat(originalText, timeExpendedSpan);
                         }
                     }
-                    if(_filter){
+                    if(_force){
                         //写入textView
                         textView.setText(timeText);
                     }else{

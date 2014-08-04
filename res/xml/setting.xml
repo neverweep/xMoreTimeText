@@ -5,6 +5,7 @@
         <de.xiaoxia.xmoretimetext.CustomSwitchPreference android:defaultValue="false" android:dependency="clock" android:key="filter" android:summaryOff="@string/filter_summary_off" android:summaryOn="@string/filter_summary_on" android:title="@string/filter"/>
         <de.xiaoxia.xmoretimetext.CustomSwitchPreference android:defaultValue="false" android:dependency="clock" android:key="color_clock_s" android:summaryOff="@string/color_clock_summary_off" android:summaryOn="@string/color_clock_summary_on" android:title="@string/color_clock_s"/>
         <net.margaritov.preference.colorpicker.ColorPickerPreference android:defaultValue="0xFF000000" android:dependency="color_clock_s" android:key="color_clock" android:summary="@string/color_clock_summary" android:title="@string/color_clock"/>
+        <de.xiaoxia.xmoretimetext.CustomSwitchPreference android:defaultValue="false" android:key="force" android:summaryOff="@string/force_summary_off" android:summaryOn="@string/force_summary_on" android:title="@string/force"/>
     </PreferenceCategory>
     <PreferenceCategory android:key="cat_info" android:title="@string/info">
         <de.xiaoxia.xmoretimetext.CustomSwitchPreference android:defaultValue="true" android:key="basic_info" android:summaryOff="@string/basic_info_summary_off" android:summaryOn="@string/basic_info_summary_on" android:title="@string/basic_info"/>
