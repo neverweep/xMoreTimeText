@@ -22,6 +22,7 @@ import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.widget.Toast;
 import android.app.AlertDialog;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
@@ -72,12 +73,6 @@ public class Setting extends PreferenceActivity implements OnSharedPreferenceCha
         }else{
         	lp.setSummary(lp.getEntry());
         }
-        lp = (ListPreference) findPreference("size_expended");
-        if(lp.getValue().toString().equals("1.0") || "".equals(lp.getValue())){
-            lp.setSummary(R.string.s10);
-        }else{
-        	lp.setSummary(lp.getEntry());
-        }
         etp = (EditTextPreference) findPreference("format_date");
         if(!"".equals(etp.getText()) && etp.getText() != null){
             etp.setSummary(etp.getText());
@@ -90,20 +85,23 @@ public class Setting extends PreferenceActivity implements OnSharedPreferenceCha
     @Override
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
         //设置有变化、则重新读取设置并显示在界面上
+        if(key.equals("second")){
+            sp = (SwitchPreference) findPreference("second");
+            if(sp.isChecked()){
+                Toast.makeText(this, getString(R.string.second_note), Toast.LENGTH_LONG).show();
+            }
+            return;
+        }
         if(key.equals("clock")){
             sp = (SwitchPreference) findPreference("clock");
             if(sp.isChecked() == false){
+                sp = (SwitchPreference) findPreference("second");
+                sp.setChecked(false);
                 sp = (SwitchPreference) findPreference("filter");
                 sp.setChecked(false);
                 sp = (SwitchPreference) findPreference("color_clock_s");
                 sp.setChecked(false);
             }
-            return;
-        }
-        if(key.equals("display")){
-            sp = (SwitchPreference) findPreference("display");
-            lp = (ListPreference) findPreference("size_expended");
-            lp.setEnabled(sp.isChecked());
             return;
         }
         if(key.equals("display_date")){
@@ -116,13 +114,7 @@ public class Setting extends PreferenceActivity implements OnSharedPreferenceCha
         }
         if(key.equals("basic_info")){
             sp = (SwitchPreference) findPreference("basic_info");
-            if(sp.isChecked()){
-                sp = (SwitchPreference) findPreference("display");
-                lp = (ListPreference) findPreference("size_expended");
-                lp.setEnabled(sp.isChecked());
-            }else{
-                sp = (SwitchPreference) findPreference("display");
-                sp.setChecked(false);
+            if(sp.isChecked() == false){
                 sp = (SwitchPreference) findPreference("color_info_s");
                 sp.setChecked(false);
             }

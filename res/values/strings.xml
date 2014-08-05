@@ -38,13 +38,9 @@
     <string name="s07">0.7 X</string>
     <string name="s06">0.6 X</string>
     <string name="s05">0.5 X</string>
-    <string name="display">Expended statusbar</string>
-    <string name="display_summary_off">On statusbar only</string>
-    <string name="display_summary_on">Also on expended statusbar</string>
     <string name="date">Date text settings</string>
     <string name="basic_first">Info text first</string>
     <string name="date_first">Date text first</string>
-    <string name="size_expended">Additional text size on expended statusbar</string>
     <string name="display_date">Additional date text</string>
     <string name="display_date_summary_off">No operation</string>
     <string name="display_date_summary_on">Append date to the clock</string>
@@ -52,7 +48,7 @@
     <string name="size_date">Additional date size</string>
     <string name="priority_date">Additional info priority(same side)</string>
     <string name="format_date">Additional date format</string>
-    <string name="format_msg">yy [yyyy] = Year (14 [2014])\nM [MM, MMM] = Month (8 [08, Aug])\nd [dd] = Day (1 [01])\nE = Day of week (Mon)\nHH [H, hh, h] = Hour (13 [13, 01, 1])\nmm [m] = Minute (02 [2])\n## = Time Peorid Info Text\n\nNote: Please reference the document of SimpleDateFormat. Do not add any illegal letter.</string>
+    <string name="format_msg">"yy [yyyy] = Year (14 [2014])\nM [MM, MMM] = Month (8 [08, Aug])\nd [dd] = Day (1 [01])\nE = Day of week (Mon)\nHH [H, hh, h] = Hour (13 [13, 01, 1])\nmm [m] = Minute (02 [2])\n## = Time Peorid Info Text\n\nNote: Please reference the document of SimpleDateFormat. Do not add any illegal letter.\n\nQuote the words you don't want them converted to date or time by quotation marks."</string>
     <string name="customize_setting">Custom time period settings</string>
     <string name="info">Info text based on time period settings</string>
     <string name="clock">Show stock clock</string>
@@ -80,4 +76,9 @@
     <string name="center">Center clock</string>
     <string name="center_summary_off">System default</string>
     <string name="center_summary_on">Center clock</string>
+    <string name="cat_clock">Clock settings</string>
+    <string name="second">Enable Seconds</string>
+    <string name="second_note">The stock clock is enabled to display seconds.\n\nThis will cost a little more resource.\nOnly turn on this if you really need.</string>
+    <string name="second_summary_off">System default</string>
+    <string name="second_summary_on">Count every second</string>
 </resources>

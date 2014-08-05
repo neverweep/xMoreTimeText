@@ -14,13 +14,13 @@ package de.xiaoxia.xmoretimetext;
 
 import static de.robv.android.xposed.XposedHelpers.findAndHookMethod;
 
-import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
-import java.util.Calendar;
 import java.util.Locale;
 
 import android.annotation.SuppressLint;
+import android.content.ContentResolver;
 import android.os.Build;
+import android.os.Handler;
 import android.text.SpannableString;
 import android.text.TextUtils;
 import android.text.style.ForegroundColorSpan;
@@ -42,24 +42,35 @@ import de.robv.android.xposed.callbacks.XC_LoadPackage.LoadPackageParam;
 public class Main implements IXposedHookLoadPackage, IXposedHookInitPackageResources {
 
     private static final String PACKAGE_NAME = "com.android.systemui";
-    private static CharSequence time = "";
-    private static CharSequence timeText;
-    private static SpannableString timeSpan;
+    private static final String CLASS_NAME   = "com.android.systemui.statusbar.policy.Clock";
+
+    private static CharSequence info;
+    private static CharSequence finalTextSpan;
+    private static SpannableString infoSpan;
     private static SpannableString dateSpan;
-    private static SpannableString timeExpendedSpan;
-    private static SpannableString originalTextSpan;
+    private static SpannableString clockSpan;
     private static String[] preText;
-    private static Calendar calendar;
     private static SimpleDateFormat sdf;
-    private static DecimalFormat df = new DecimalFormat("00");
-    private static String originalText;
+    private static SimpleDateFormat sdfSecond;
+    private static SimpleDateFormat sdfInfo;
+    private static SimpleDateFormat sdfMarker;
+    private static String clockText;
     private static String date;
     private static Object vClock = null;
     private static Boolean isFormatOk;
     private static TextView textView;
+    private static TextView mClock;
+    private static ContentResolver cv;
+    private static Handler mHandler; 
+    private static Runnable mTicker ;
+    private static String marker;
+    private static Boolean hasMarker;
+    private static Boolean markerAtHead;
 
     //使用Xposed提供的XSharedPreferences方法来读取android内置的SharedPreferences设置
     private final static XSharedPreferences prefs = new XSharedPreferences(Main.class.getPackage().getName());
+    //以秒显示
+    protected final static Boolean _second = prefs.getBoolean("second", false);
     //是否显示信息
     protected final static Boolean _center = prefs.getBoolean("center", false);
     //是否显示信息
@@ -70,8 +81,6 @@ public class Main implements IXposedHookLoadPackage, IXposedHookInitPackageResou
     protected final static Boolean _filter = prefs.getBoolean("filter", false);
     //自定义
     protected final static Boolean _customize = prefs.getBoolean("customize", false);
-    //是否在扩展状态栏显示
-    protected final static Boolean _display = prefs.getBoolean("display", false);
     //自定义位置
     protected final static Boolean _position = prefs.getString("position", "true").equals("true");
     //自定义大小
@@ -86,8 +95,6 @@ public class Main implements IXposedHookLoadPackage, IXposedHookInitPackageResou
     protected final static String _format_date = prefs.getString("format_date", "").trim();
     //自定义日期大小
     protected final static Float _size_date = Float.valueOf(prefs.getString("size_date", "1.0"));
-    //自定义大小（扩展状态栏）
-    protected final static Float _size_expended = Float.valueOf(prefs.getString("size_expended", "1.0"));
     //自定义原生时钟颜色
     protected final static int _color_clock = prefs.getInt("color_clock", -16777216);
     //自定义原生时钟颜色开关
@@ -103,7 +110,7 @@ public class Main implements IXposedHookLoadPackage, IXposedHookInitPackageResou
     //强制更新
     protected final static Boolean _force =  prefs.getBoolean("force", false);
     //判断时间段是否可用的布尔数组
-    private Boolean[] pValidaty = {
+    private static Boolean[] pValidaty = {
         false, false, false, false, false, false, false, false, false, false
     };
     //读取自定义名称
@@ -146,59 +153,6 @@ public class Main implements IXposedHookLoadPackage, IXposedHookInitPackageResou
         Integer.parseInt(prefs.getString("pe9", "-1").replace(":", "")),
     };
 
-    //此处的作用为：在systemui初始化资源的过程中，向状态栏clock加入一个没用的vClock，然后就可以判断是不是为状态栏的Clock了。
-    public void handleInitPackageResources(final InitPackageResourcesParam resparam) {
-        if (!resparam.packageName.equals(PACKAGE_NAME))
-            return;
-
-        resparam.res.hookLayout(PACKAGE_NAME, "layout", "super_status_bar", new XC_LayoutInflated() {
-            @Override
-            public void handleLayoutInflated(LayoutInflatedParam liparam){
-                /*
-                /  Center clock view and know if is expended status bar. 
-                /  Thanks for the work of GravityBox by C3C0@XDA
-                /  https://github.com/GravityBox/GravityBox/blob/jellybean/src/com/ceco/gm2/gravitybox/ModStatusBar.java
-                */
-                Boolean mClockInSbContents = false;
-
-                String iconAreaId = Build.VERSION.SDK_INT > 16 ? "system_icon_area" : "icons";
-                ViewGroup mIconArea = (ViewGroup) liparam.view.findViewById(liparam.res.getIdentifier(iconAreaId, "id", PACKAGE_NAME));
-                if (mIconArea == null)
-                    return;
-
-                ViewGroup mRootView = (ViewGroup) liparam.view.findViewById(liparam.res.getIdentifier("status_bar", "id", PACKAGE_NAME));
-                if (mRootView == null)
-                    return;
-
-                LinearLayout mLayoutClock = new LinearLayout(liparam.view.getContext());
-                mLayoutClock.setLayoutParams(new LinearLayout.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
-                mLayoutClock.setGravity(Gravity.CENTER);
-                mRootView.addView(mLayoutClock);
-                
-                ViewGroup mSbContents = Build.VERSION.SDK_INT > 16 ? (ViewGroup) liparam.view.findViewById(liparam.res.getIdentifier("status_bar_contents", "id", PACKAGE_NAME)) : mIconArea;
-                TextView clock = (TextView) mIconArea.findViewById(liparam.res.getIdentifier("clock", "id", PACKAGE_NAME));
-                if (clock == null && mSbContents != null) {
-                    clock = (TextView) mSbContents.findViewById(liparam.res.getIdentifier("clock", "id", PACKAGE_NAME));
-                    mClockInSbContents = clock != null;
-                }
-                if(_center){
-                    if (mClockInSbContents) {
-                        mSbContents.removeView(clock);
-                    } else {
-                        mIconArea.removeView(clock);
-                    }
-                    clock.setGravity(Gravity.CENTER);
-                    clock.setLayoutParams(new LinearLayout.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
-                    clock.setPadding(0, 0, 0, 0);
-                    mSbContents.removeView(clock);
-                    mLayoutClock.addView(clock);
-                }
-                if(clock != null)
-                    XposedHelpers.setAdditionalInstanceField(clock, "vClock", true);
-            }
-        });
-    }
-
     @SuppressLint("SimpleDateFormat")
     public void handleLoadPackage(final LoadPackageParam lpparam) {
         //如果不是systemui则跳过
@@ -228,183 +182,320 @@ public class Main implements IXposedHookLoadPackage, IXposedHookInitPackageResou
             pValidaty[i] = !"".equals(pEnd[i]) && !"".equals(pStart[i]) && pEnd[i] != -1 && pStart[i] != -1;
         }
 
-        //初始化日历实例
-        calendar = Calendar.getInstance();
-
         //判断日期格式字符串是否有效，否则有些步骤没必要进行
         isFormatOk = !"".equals(_format_date) && _format_date != null;
         //初始化SimpleDateFormat对象
         if(isFormatOk)
             sdf = new SimpleDateFormat(_format_date);
+        sdfInfo = new SimpleDateFormat("HHmm");
+        sdfMarker = new SimpleDateFormat("a");
 
-        //勾在Clock更新后
-        findAndHookMethod("com.android.systemui.statusbar.policy.Clock", lpparam.classLoader, _force ? "updateClock" : "getSmallTime", new XC_MethodHook(){
-            @Override
-            protected void afterHookedMethod(MethodHookParam param) {
-                //获取vClock对象
-                vClock = XposedHelpers.getAdditionalInstanceField(param.thisObject, "vClock");
-
-                //如果vClock == null 说明此时是扩展状态栏，如果没有在扩展显示的必要，则直接跳过以下所有步骤
-                if(vClock != null || _display){
-                    //获取时钟的文字
-                    if(_force){
-                        textView = (TextView) param.thisObject; //所以直接获取这个对象
-                        originalText = (String) textView.getText().toString();
-                    }else{
-                        originalText = param.getResult().toString();
-                    }
-
-                    //如果打开过滤则用正则表达式去除原始时间中的文字
-                    if(_filter)
-                        originalText = originalText.replaceAll("([上下]午)|([AP]\\.?M\\.?)", "");
-
-                    calendar.setTimeInMillis(System.currentTimeMillis()); //设定日历控件为当前时间
-                    int hm = Integer.parseInt(calendar.get(Calendar.HOUR_OF_DAY) + df.format(calendar.get(Calendar.MINUTE))); //读取时间，hhmm
-
-                    //如果打开自定义，则
-                    if (_customize) {
-                        //时间判断
-                        for (int i = 0; i <= 9; i++) {
-                            //XposedBridge.log(i + " -  EN:" + pValidaty[i] + " NOW:" + hm + " ED:" + pEnd[i] + " ST:" + pStart[i]);
-                            if (pValidaty[i] && hm <= pEnd[i] && hm >= pStart[i]) {
-                                time = pTitle[i];
-                                break;
-                            }
-                        }
-                    } else if(_info){
-                        //时间判断
-                        if (hm < 600 && hm >= 0) {
-                            time = preText[0];
-                        } else if (hm < 800 && hm >= 600) {
-                            time = preText[1];
-                        } else if (hm < 1100 && hm >= 800) {
-                            time = preText[2];
-                        } else if (hm < 1200 && hm >= 1100) {
-                            time = preText[3];
-                        } else if (hm < 1400 && hm >= 1200) {
-                            time = preText[4];
-                        } else if (hm < 1730 && hm >= 1400) {
-                            time = preText[5];
-                        } else if (hm < 1930 && hm >= 1730) {
-                            time = preText[6];
-                        } else {
-                            time = preText[7];
-                        }
-                    }else{
-                        time = "";
-                    }
-
-                    if(_position){
-                        //基本文字居左
-                        if(_info){
-                            timeSpan = new SpannableString(time + " ");
-                            timeSpan.setSpan(new RelativeSizeSpan(_size), 0, timeSpan.length(), 0);
-                            if(_color_info_s){
-                                timeSpan.setSpan(new ForegroundColorSpan(_color_info), 0, timeSpan.length(), 0);
-                            }
-                        }else{
-                            timeSpan = new SpannableString("");
-                        }
-                        if(vClock != null){
-                            //如果显示状态栏
-                            originalText = _clock ? originalText.trim() : "";
-                            originalTextSpan =  new SpannableString(originalText);
-                            //如果开启了显示原生时钟，且在设置了自定义颜色的情况下，进行处理
-                            if(_clock && _color_clock_s){
-                                originalTextSpan.setSpan(new ForegroundColorSpan(_color_clock), 0, originalTextSpan.length(), 0);
-                            }
-                            //如果显示日期，且格式正确
-                            if(_display_date && isFormatOk){
-                                //如果显示日期且格式正确
-                                date = sdf.format(System.currentTimeMillis()).replace("##", time);
-                                if(_position_date){
-                                    //如果靠左
-                                    dateSpan = new SpannableString(date + " ");
-                                    dateSpan.setSpan(new RelativeSizeSpan(_size_date), 0, dateSpan.length(), 0);
-                                    if(_color_date_s){
-                                        dateSpan.setSpan(new ForegroundColorSpan(_color_date), 0, dateSpan.length(), 0);
-                                    }
-                                    if(_priority_date){
-                                        //如果基本文字优先
-                                        timeText = TextUtils.concat(timeSpan, dateSpan, originalTextSpan);
-                                    }else{
-                                        timeText = TextUtils.concat(dateSpan, timeSpan, originalTextSpan);
-                                    }
-                                }else{
-                                    //如果靠右
-                                    dateSpan = new SpannableString(" " + date);
-                                    dateSpan.setSpan(new RelativeSizeSpan(_size_date), 0, dateSpan.length(), 0);
-                                    //如果开启了对日期文字的渲染
-                                    if(_color_date_s){
-                                        dateSpan.setSpan(new ForegroundColorSpan(_color_date), 0, dateSpan.length(), 0);
-                                    }
-                                    timeText = TextUtils.concat(timeSpan, originalTextSpan, dateSpan);
-                                }
-                            }else{
-                                //没有则仅显示基本信息
-                                timeText = TextUtils.concat(timeSpan, originalTextSpan);
-                            }
-                        }else if(_display){
-                            //设置扩展状态栏
-                            timeExpendedSpan = new SpannableString(time + " ");
-                            timeExpendedSpan.setSpan(new RelativeSizeSpan(_size_expended), 0, timeExpendedSpan.length(), 0);
-                            timeText = TextUtils.concat(timeExpendedSpan, originalText);
-                        }
-                    }else{
-                        //基本文字居右
-                        if(_info){
-                            timeSpan = new SpannableString(" " + time);
-                            timeSpan.setSpan(new RelativeSizeSpan(_size), 0, timeSpan.length(), 0);
-                            if(_color_info_s){
-                                timeSpan.setSpan(new ForegroundColorSpan(_color_info), 0, timeSpan.length(), 0);
-                            }
-                        }else{
-                            timeSpan = new SpannableString("");
-                        }
-                        if(vClock != null){
-                            originalText = _clock ? originalText.trim() : "";
-                            originalTextSpan =  new SpannableString(originalText);
-                            if(_clock && _color_clock_s){
-                                originalTextSpan.setSpan(new ForegroundColorSpan(_color_clock), 0, originalTextSpan.length(), 0);
-                            }
-                            if(_display_date && isFormatOk){
-                                date = sdf.format(System.currentTimeMillis()).replace("##", time);
-                                if(_position_date){
-                                    dateSpan = new SpannableString(date + " ");
-                                    dateSpan.setSpan(new RelativeSizeSpan(_size_date), 0, dateSpan.length(), 0);
-                                    if(_color_date_s){
-                                        dateSpan.setSpan(new ForegroundColorSpan(_color_date), 0, dateSpan.length(), 0);
-                                    }
-                                    timeText = TextUtils.concat(dateSpan, originalTextSpan, timeSpan);
-                                }else{
-                                    dateSpan = new SpannableString(" " + date);
-                                    dateSpan.setSpan(new RelativeSizeSpan(_size_date), 0, dateSpan.length(), 0);
-                                    if(_color_date_s){
-                                        dateSpan.setSpan(new ForegroundColorSpan(_color_date), 0, dateSpan.length(), 0);
-                                    }
-                                    if(_priority_date){
-                                        timeText = TextUtils.concat(originalTextSpan, timeSpan, dateSpan);
-                                    }else{
-                                        timeText = TextUtils.concat(originalTextSpan, dateSpan, timeSpan);
-                                    }
-                                }
-                            }else{
-                                timeText = TextUtils.concat(originalTextSpan, timeSpan);
-                            }
-                        }else if(_display){
-                            timeExpendedSpan = new SpannableString(" " + time);
-                            timeExpendedSpan.setSpan(new RelativeSizeSpan(_size_expended), 0, timeExpendedSpan.length(), 0);
-                            timeText = TextUtils.concat(originalText, timeExpendedSpan);
-                        }
-                    }
-                    if(_force){
-                        //写入textView
-                        textView.setText(timeText);
-                    }else{
-                        //写入param
-                        param.setResult(timeText);
+        if(_second){
+            //如果需要按秒计时，在clock更新后立即更新同时避免每秒更新date和info
+            findAndHookMethod(CLASS_NAME, lpparam.classLoader, "updateClock", new XC_MethodHook(){
+                @Override
+                protected void afterHookedMethod(MethodHookParam param) {
+                    if (mClock != null && _second){
+                        timerStart();
+                        if(!_filter)
+                            marker = sdfMarker.format(System.currentTimeMillis());
+                        updateInfoAndDate(); //放在这里每分钟更新一次，避免消耗资源
+                        tick(false);
                     }
                 }
+            });
+        }else{
+            //勾在Clock更新后
+            findAndHookMethod(CLASS_NAME, lpparam.classLoader, _force ? "updateClock" : "getSmallTime", new XC_MethodHook(){
+                @Override
+                protected void afterHookedMethod(MethodHookParam param) {
+                    //获取vClock对象
+                    vClock = XposedHelpers.getAdditionalInstanceField(param.thisObject, "vClock");
+
+                    //如果vClock == null 说明此时是扩展状态栏，如果没有在扩展显示的必要，则直接跳过以下所有步骤
+                    if(vClock != null){
+                        //获取时钟的文字
+                        if(_force){
+                            textView = (TextView) param.thisObject; //所以直接获取这个对象
+                            clockText = (String) textView.getText().toString();
+                        }else{
+                            clockText = param.getResult().toString();
+                        }
+
+                        updateInfoAndDate();
+
+                        if(_force){
+                            //写入textView
+                            textView.setText(textParse(clockText));
+                        }else{
+                            //写入param
+                            param.setResult(textParse(clockText));
+                        }
+                    }
+                }
+            });
+        }
+    }
+
+    //此处的作用为：在systemui初始化资源的过程中，向状态栏clock加入一个没用的vClock，然后就可以判断是不是为状态栏的Clock了。
+    @SuppressLint("SimpleDateFormat")
+    public void handleInitPackageResources(final InitPackageResourcesParam resparam) {
+        if (!resparam.packageName.equals(PACKAGE_NAME))
+            return;
+
+        resparam.res.hookLayout(PACKAGE_NAME, "layout", "super_status_bar", new XC_LayoutInflated() {
+            @Override
+            public void handleLayoutInflated(LayoutInflatedParam liparam){
+                /*
+                 * Center clock view and know if is expended status bar. 
+                 * Thanks for the work of GravityBox by C3C076@xda
+                 * https://github.com/GravityBox/GravityBox/blob/jellybean/src/com/ceco/gm2/gravitybox/ModStatusBar.java
+                 *
+                 *
+                 * Copyright (C) 2013 Peter Gregus for GravityBox Project (C3C076@xda)
+                 * Licensed under the Apache License, Version 2.0 (the "License");
+                 * you may not use this file except in compliance with the License.
+                 * You may obtain a copy of the License at
+                 *
+                 *      http://www.apache.org/licenses/LICENSE-2.0
+                 *
+                 * Unless required by applicable law or agreed to in writing, software
+                 * distributed under the License is distributed on an "AS IS" BASIS,
+                 * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+                 * See the License for the specific language governing permissions and
+                 * limitations under the License.
+                 */
+                Boolean mClockInSbContents = false;
+
+                String iconAreaId = Build.VERSION.SDK_INT > 16 ? "system_icon_area" : "icons";
+                ViewGroup mIconArea = (ViewGroup) liparam.view.findViewById(liparam.res.getIdentifier(iconAreaId, "id", PACKAGE_NAME));
+                if (mIconArea == null)
+                    return;
+
+                ViewGroup mRootView = (ViewGroup) liparam.view.findViewById(liparam.res.getIdentifier("status_bar", "id", PACKAGE_NAME));
+                if (mRootView == null)
+                    return;
+
+                LinearLayout mLayoutClock = new LinearLayout(liparam.view.getContext());
+                mLayoutClock.setLayoutParams(new LinearLayout.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
+                mLayoutClock.setGravity(Gravity.CENTER);
+                mRootView.addView(mLayoutClock);
+
+                ViewGroup mSbContents = Build.VERSION.SDK_INT > 16 ? (ViewGroup) liparam.view.findViewById(liparam.res.getIdentifier("status_bar_contents", "id", PACKAGE_NAME)) : mIconArea;
+                mClock = (TextView) mIconArea.findViewById(liparam.res.getIdentifier("clock", "id", PACKAGE_NAME));
+                if (mClock == null && mSbContents != null) {
+                    mClock = (TextView) mSbContents.findViewById(liparam.res.getIdentifier("clock", "id", PACKAGE_NAME));
+                    mClockInSbContents = mClock != null;
+                }
+                if(_center){
+                    if (mClockInSbContents) {
+                        mSbContents.removeView(mClock);
+                    } else {
+                        mIconArea.removeView(mClock);
+                    }
+                    mClock.setGravity(Gravity.CENTER);
+                    mClock.setLayoutParams(new LinearLayout.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
+                    mClock.setPadding(0, 0, 0, 0);
+                    mSbContents.removeView(mClock);
+                    mLayoutClock.addView(mClock);
+                }
+                if(mClock != null)
+                    XposedHelpers.setAdditionalInstanceField(mClock, "vClock", true);
+                if(_second){
+                    if(mClock != null){
+                        String mText = mClock.getText().toString().trim();
+                        markerAtHead = mText.indexOf(":") > 4 ? false : true;
+                        hasMarker = mText.length() >= 7;
+                        //根据系统是否是24小时制决定以秒计时的格式
+                        cv = mClock.getContext().getContentResolver();
+                        String strTimeFormat = android.provider.Settings.System.getString(cv, android.provider.Settings.System.TIME_12_24);
+                        if (strTimeFormat != null && strTimeFormat.equals("24")) {
+                            sdfSecond = new SimpleDateFormat("H:mm:ss");
+                        }else{
+                            sdfSecond = new SimpleDateFormat("h:mm:ss");
+                        }
+                        updateInfoAndDate();
+                        timerStart();
+                    }
+                }
+            }
+        });
+    }
+
+    private static void updateInfoAndDate(){
+        int hm = Integer.parseInt(sdfInfo.format(System.currentTimeMillis())); //读取时间，hmm
+        //如果打开自定义，则
+        if (_customize) {
+            //时间判断
+            info = "";
+            for (int i = 0; i <= 9; i++) {
+                //XposedBridge.log(i + " -  EN:" + pValidaty[i] + " NOW:" + hm + " ED:" + pEnd[i] + " ST:" + pStart[i]);
+                if (pValidaty[i] && hm <= pEnd[i] && hm >= pStart[i]) {
+                    info = pTitle[i];
+                    break;
+                }
+            }
+        } else if(_info){
+            //时间判断
+            if (hm < 600 && hm >= 0) {
+                info = preText[0];
+            } else if (hm < 800 && hm >= 600) {
+                info = preText[1];
+            } else if (hm < 1100 && hm >= 800) {
+                info = preText[2];
+            } else if (hm < 1200 && hm >= 1100) {
+                info = preText[3];
+            } else if (hm < 1400 && hm >= 1200) {
+                info = preText[4];
+            } else if (hm < 1730 && hm >= 1400) {
+                info = preText[5];
+            } else if (hm < 1930 && hm >= 1730) {
+                info = preText[6];
+            } else {
+                info = preText[7];
+            }
+        }else{
+            info = "";
+        }
+
+        if(_info){
+            infoSpan = new SpannableString(info);
+            infoSpan.setSpan(new RelativeSizeSpan(_size), 0, infoSpan.length(), 0);
+            if(_color_info_s)
+                infoSpan.setSpan(new ForegroundColorSpan(_color_info), 0, infoSpan.length(), 0);
+        }else{
+            infoSpan = new SpannableString("");
+        }
+
+        if(_display_date && isFormatOk){
+            date = sdf.format(System.currentTimeMillis()).replace("##", info);
+            dateSpan = new SpannableString(date);
+            dateSpan.setSpan(new RelativeSizeSpan(_size_date), 0, dateSpan.length(), 0);
+            if(_color_date_s)
+                dateSpan.setSpan(new ForegroundColorSpan(_color_date), 0, dateSpan.length(), 0);
+        }else{
+            dateSpan = new SpannableString("");
+        }
+    }
+
+    @SuppressLint("SimpleDateFormat")
+    private static CharSequence textParse(String originalClockText){
+        if(_clock){
+            if(_second){
+                //这里的内容是每秒要更新的
+                if(!_filter){
+                    originalClockText = hasMarker ? markerAtHead ? marker + " " + sdfSecond.format(System.currentTimeMillis()) : sdfSecond.format(System.currentTimeMillis()) + " " + marker : sdfSecond.format(System.currentTimeMillis());
+                }else{
+                    originalClockText = sdfSecond.format(System.currentTimeMillis());
+                }
+            }else{
+                if(_filter){
+                    marker = sdfMarker.format(System.currentTimeMillis());
+                    originalClockText = originalClockText.replaceAll(marker, "").trim(); //如果打开过滤去除原始时间中的上下午标记
+                }
+                originalClockText = originalClockText.trim();
+            }
+            clockSpan =  new SpannableString(originalClockText);
+            //如果开启了显示原生时钟，且在设置了自定义颜色的情况下，进行处理
+            if(_color_clock_s)
+                clockSpan.setSpan(new ForegroundColorSpan(_color_clock), 0, clockSpan.length(), 0);
+        }else{
+            clockSpan = new SpannableString("");
+        }
+
+        if(_position){
+            //基本文字居左
+            //如果显示日期，且格式正确
+            if(_position_date){
+                //如果靠左
+                if(_priority_date){
+                    //如果基本文字优先
+                    finalTextSpan = TextUtils.concat(infoSpan, infoSpan.length() > 0 ? " " : "", dateSpan, dateSpan.length() > 0 ? " " : "", clockSpan);
+                }else{
+                    //如果日期文字优先
+                    finalTextSpan = TextUtils.concat(dateSpan, dateSpan.length() > 0 ? " " : "", infoSpan, infoSpan.length() > 0 ? " " : "", clockSpan);
+                }
+            }else{
+                //如果靠右
+                finalTextSpan = TextUtils.concat(infoSpan, infoSpan.length() > 0 ? " " : "", clockSpan,dateSpan.length() > 0 ? " " : "", dateSpan);
+            }
+        }else{
+            //基本文字居右
+            if(_position_date){
+                finalTextSpan = TextUtils.concat(dateSpan, dateSpan.length() > 0 ? " " : "", clockSpan, infoSpan.length() > 0 ? " " : "", infoSpan);
+            }else{
+                if(_priority_date){
+                    finalTextSpan = TextUtils.concat(clockSpan, infoSpan.length() > 0 ? " " : "", infoSpan, dateSpan.length() > 0 ? " " : "", dateSpan);
+                }else{
+                    finalTextSpan = TextUtils.concat(clockSpan, dateSpan.length() > 0 ? " " : "", dateSpan, infoSpan.length() > 0 ? " " : "", infoSpan);
+                }
+            }
+        }
+        return finalTextSpan;
+    }
+
+    /*
+     * Enable seconds
+     * Thanks for the work of XuiMod by zst123
+     * https://github.com/zst123/XuiMod/blob/master/src/com/zst/xposed/xuimod/mods/SecondsClockMod.java
+     *
+     *
+     * Copyright (C) 2013 XuiMod
+     * 
+     * Licensed under the Apache License, Version 2.0 (the "License");
+     * you may not use this file except in compliance with the License.
+     * You may obtain a copy of the License at
+     *
+     *      http://www.apache.org/licenses/LICENSE-2.0
+     *
+     * Unless required by applicable law or agreed to in writing, software
+     * distributed under the License is distributed on an "AS IS" BASIS,
+     * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     * See the License for the specific language governing permissions and
+     * limitations under the License.
+     */
+    private static void timerStart() {
+        mHandler = new Handler(mClock.getContext().getMainLooper());
+        mTicker = new Runnable() {
+            public void run() {
+                tickOnThread(); 
+                waitOneSecond();
+            }
+        };
+        mHandler.postDelayed(mTicker, 800);
+    }
+
+    private static void waitOneSecond() { 
+        mHandler.postDelayed(mTicker, 990);
+    }
+
+    private static void tickOnThread() {
+        final Thread thread = new Thread(new Runnable(){
+            @Override
+            public void run() {
+                tick(true);
+            }
+        });
+        thread.start(); 
+    }
+
+    private static void tick(boolean changeTextWithHandler) {
+        vClock = XposedHelpers.getAdditionalInstanceField(mClock, "vClock");
+        if(vClock != null){
+            if (changeTextWithHandler){
+                setClockTextOnHandler(textParse(""));
+            }else{
+                mClock.setText(textParse(""));
+            }
+        }
+    }
+    private static void setClockTextOnHandler(final CharSequence time) {
+        if (mHandler == null) {
+            mHandler = new Handler(mClock.getContext().getMainLooper());
+        } 
+        mHandler.post(new Runnable() {
+            public void run() {
+                mClock.setText(time);
             }
         });
     }

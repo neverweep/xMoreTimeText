@@ -38,13 +38,9 @@
     <string name="s07">0.7 倍</string>
     <string name="s06">0.6 倍</string>
     <string name="s05">0.5 倍</string>
-    <string name="display">擴展狀態列</string>
-    <string name="display_summary_off">僅在狀態列顯示</string>
-    <string name="display_summary_on">也在擴展狀態列顯示</string>
     <string name="date">日期文字設置</string>
     <string name="basic_first">資訊文字優先</string>
     <string name="date_first">日期文字優先</string>
-    <string name="size_expended">擴展狀態列附加文字大小</string>
     <string name="display_date">附加日期文字</string>
     <string name="display_date_summary_off">無操作</string>
     <string name="display_date_summary_on">在時鐘旁附加日期</string>
@@ -52,7 +48,7 @@
     <string name="size_date">附加日期文字大小</string>
     <string name="priority_date">附加資訊顯示順序（同側）</string>
     <string name="format_date">附加日期格式</string>
-    <string name="format_msg">yy [yyyy] = 年 (14 [2014])\nM [MM, MMM] = 月 (8 [08, 8月])\nd [dd] = 日 (1 [01])\nE = 星期 (週一)\nHH [H, hh, h] = 小時 (13 [13, 01, 1])\nmm [m] = 分鐘 (02 [2])\na = 上下午標記 (上午)\n## = 時間段資訊文本\n\n注意：請參考 SimpleDateFormat 的使用手冊，不要添加非法的英文字元。</string>
+    <string name="format_msg">yy [yyyy] = 年 (14 [2014])\nM [MM, MMM] = 月 (8 [08, 8月])\nd [dd] = 日 (1 [01])\nE = 星期 (週一)\nHH [H, hh, h] = 小時 (13 [13, 01, 1])\nmm [m] = 分鐘 (02 [2])\n## = 時間段資訊文本\n\n注意：請參考 SimpleDateFormat 的使用手冊，不要添加非法的英文字元。\n\n使用英文引號將不想轉換為日期時間的部分包圍起來。</string>
     <string name="customize_setting">自訂時間段和文本設置</string>
     <string name="info">基於時間段的資訊文字設置</string>
     <string name="clock">顯示原生時鐘</string>
@@ -80,4 +76,9 @@
     <string name="center">時鐘居中</string>
     <string name="center_summary_off">系統預設</string>
     <string name="center_summary_on">時鐘居中</string>
+    <string name="cat_clock">時鐘設置</string>
+    <string name="second">允許計秒</string>
+    <string name="second_note">原生時鐘已經打開計秒。\n\n這會佔用一點資源，僅在需要時才打開。</string>
+    <string name="second_summary_off">系統預設</string>
+    <string name="second_summary_on">珍惜每一秒鐘</string>
 </resources>

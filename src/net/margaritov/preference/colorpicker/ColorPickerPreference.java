@@ -78,7 +78,7 @@ public class ColorPickerPreference
 		setOnPreferenceClickListener(this);
 		if (attrs != null) {
 			mAlphaSliderEnabled = attrs.getAttributeBooleanValue(null, "alphaSlider", false);
-			mHexValueEnabled = attrs.getAttributeBooleanValue(null, "hexValue", false);
+			mHexValueEnabled = attrs.getAttributeBooleanValue(null, "hexValue", true); // Changed original value to true
 		}
 	}
 
