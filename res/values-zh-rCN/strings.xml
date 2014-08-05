@@ -77,4 +77,7 @@
     <string name="force">强制应用</string>
     <string name="force_summary_off">仅在模块无效时使用</string>
     <string name="force_summary_on">钩在 TextView 控件</string>
+    <string name="center">时钟居中</string>
+    <string name="center_summary_off">系统默认</string>
+    <string name="center_summary_on">时钟居中</string>
 </resources>

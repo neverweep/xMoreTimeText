@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
     <PreferenceCategory android:key="cat_basic" android:title="@string/basic">
+        <de.xiaoxia.xmoretimetext.CustomSwitchPreference android:defaultValue="false" android:key="center" android:summaryOff="@string/center_summary_off" android:summaryOn="@string/center_summary_on" android:title="@string/center"/>
         <de.xiaoxia.xmoretimetext.CustomSwitchPreference android:defaultValue="true" android:key="clock" android:summaryOff="@string/clock_summary_off" android:summaryOn="@string/clock_summary_on" android:title="@string/clock"/>
         <de.xiaoxia.xmoretimetext.CustomSwitchPreference android:defaultValue="false" android:dependency="clock" android:key="filter" android:summaryOff="@string/filter_summary_off" android:summaryOn="@string/filter_summary_on" android:title="@string/filter"/>
         <de.xiaoxia.xmoretimetext.CustomSwitchPreference android:defaultValue="false" android:dependency="clock" android:key="color_clock_s" android:summaryOff="@string/color_clock_summary_off" android:summaryOn="@string/color_clock_summary_on" android:title="@string/color_clock_s"/>

@@ -20,10 +20,15 @@ import java.util.Calendar;
 import java.util.Locale;
 
 import android.annotation.SuppressLint;
+import android.os.Build;
 import android.text.SpannableString;
 import android.text.TextUtils;
 import android.text.style.ForegroundColorSpan;
 import android.text.style.RelativeSizeSpan;
+import android.view.Gravity;
+import android.view.ViewGroup;
+import android.widget.LinearLayout;
+import android.widget.LinearLayout.LayoutParams;
 import android.widget.TextView;
 import de.robv.android.xposed.IXposedHookInitPackageResources;
 import de.robv.android.xposed.IXposedHookLoadPackage;
@@ -55,6 +60,8 @@ public class Main implements IXposedHookLoadPackage, IXposedHookInitPackageResou
 
     //使用Xposed提供的XSharedPreferences方法来读取android内置的SharedPreferences设置
     private final static XSharedPreferences prefs = new XSharedPreferences(Main.class.getPackage().getName());
+    //是否显示信息
+    protected final static Boolean _center = prefs.getBoolean("center", false);
     //是否显示信息
     protected final static Boolean _info = prefs.getBoolean("basic_info", true);
     //显示时钟
@@ -147,7 +154,45 @@ public class Main implements IXposedHookLoadPackage, IXposedHookInitPackageResou
         resparam.res.hookLayout(PACKAGE_NAME, "layout", "super_status_bar", new XC_LayoutInflated() {
             @Override
             public void handleLayoutInflated(LayoutInflatedParam liparam){
-                TextView clock = (TextView) liparam.view.findViewById(liparam.res.getIdentifier("clock", "id", PACKAGE_NAME));
+                /*
+                /  Center clock view and know if is expended status bar. 
+                /  Thanks for the work of GravityBox by C3C0@XDA
+                /  https://github.com/GravityBox/GravityBox/blob/jellybean/src/com/ceco/gm2/gravitybox/ModStatusBar.java
+                */
+                Boolean mClockInSbContents = false;
+
+                String iconAreaId = Build.VERSION.SDK_INT > 16 ? "system_icon_area" : "icons";
+                ViewGroup mIconArea = (ViewGroup) liparam.view.findViewById(liparam.res.getIdentifier(iconAreaId, "id", PACKAGE_NAME));
+                if (mIconArea == null)
+                    return;
+
+                ViewGroup mRootView = (ViewGroup) liparam.view.findViewById(liparam.res.getIdentifier("status_bar", "id", PACKAGE_NAME));
+                if (mRootView == null)
+                    return;
+
+                LinearLayout mLayoutClock = new LinearLayout(liparam.view.getContext());
+                mLayoutClock.setLayoutParams(new LinearLayout.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
+                mLayoutClock.setGravity(Gravity.CENTER);
+                mRootView.addView(mLayoutClock);
+                
+                ViewGroup mSbContents = Build.VERSION.SDK_INT > 16 ? (ViewGroup) liparam.view.findViewById(liparam.res.getIdentifier("status_bar_contents", "id", PACKAGE_NAME)) : mIconArea;
+                TextView clock = (TextView) mIconArea.findViewById(liparam.res.getIdentifier("clock", "id", PACKAGE_NAME));
+                if (clock == null && mSbContents != null) {
+                    clock = (TextView) mSbContents.findViewById(liparam.res.getIdentifier("clock", "id", PACKAGE_NAME));
+                    mClockInSbContents = clock != null;
+                }
+                if(_center){
+                    if (mClockInSbContents) {
+                        mSbContents.removeView(clock);
+                    } else {
+                        mIconArea.removeView(clock);
+                    }
+                    clock.setGravity(Gravity.CENTER);
+                    clock.setLayoutParams(new LinearLayout.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
+                    clock.setPadding(0, 0, 0, 0);
+                    mSbContents.removeView(clock);
+                    mLayoutClock.addView(clock);
+                }
                 if(clock != null)
                     XposedHelpers.setAdditionalInstanceField(clock, "vClock", true);
             }
@@ -264,9 +309,11 @@ public class Main implements IXposedHookLoadPackage, IXposedHookInitPackageResou
                             //如果显示状态栏
                             originalText = _clock ? originalText.trim() : "";
                             originalTextSpan =  new SpannableString(originalText);
+                            //如果开启了显示原生时钟，且在设置了自定义颜色的情况下，进行处理
                             if(_clock && _color_clock_s){
                                 originalTextSpan.setSpan(new ForegroundColorSpan(_color_clock), 0, originalTextSpan.length(), 0);
                             }
+                            //如果显示日期，且格式正确
                             if(_display_date && isFormatOk){
                                 //如果显示日期且格式正确
                                 date = sdf.format(System.currentTimeMillis()).replace("##", time);
@@ -287,6 +334,7 @@ public class Main implements IXposedHookLoadPackage, IXposedHookInitPackageResou
                                     //如果靠右
                                     dateSpan = new SpannableString(" " + date);
                                     dateSpan.setSpan(new RelativeSizeSpan(_size_date), 0, dateSpan.length(), 0);
+                                    //如果开启了对日期文字的渲染
                                     if(_color_date_s){
                                         dateSpan.setSpan(new ForegroundColorSpan(_color_date), 0, dateSpan.length(), 0);
                                     }

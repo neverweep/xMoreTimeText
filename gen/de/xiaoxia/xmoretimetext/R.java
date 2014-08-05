@@ -54,6 +54,9 @@ public final class R {
         public static final int basic_info_summary_off=0x7f06003b;
         public static final int basic_info_summary_on=0x7f06003c;
         public static final int cancel=0x7f060005;
+        public static final int center=0x7f06004d;
+        public static final int center_summary_off=0x7f06004e;
+        public static final int center_summary_on=0x7f06004f;
         public static final int clear=0x7f060012;
         public static final int clear_msg=0x7f060013;
         public static final int clock=0x7f060037;
