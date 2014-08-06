@@ -77,8 +77,8 @@ public class ColorPickerPreference
 		mDensity = getContext().getResources().getDisplayMetrics().density;
 		setOnPreferenceClickListener(this);
 		if (attrs != null) {
-			mAlphaSliderEnabled = attrs.getAttributeBooleanValue(null, "alphaSlider", false);
-			mHexValueEnabled = attrs.getAttributeBooleanValue(null, "hexValue", true); // Changed original value to true
+			mAlphaSliderEnabled = attrs.getAttributeBooleanValue(null, "alphaSlider", true); //changed here
+			mHexValueEnabled = attrs.getAttributeBooleanValue(null, "hexValue", true); // and here
 		}
 	}
 

@@ -1,7 +1,7 @@
 <resources>
     <string name="app_name">X 時鐘文字擴展</string>
     <string name="about">關於 X 時鐘文字擴展</string>
-	<string name="about_msg"><b>歡迎使用這個 Xposed 模組\n希望能給你帶來一點方便：）</b>\n\n我的博客: <a href="http://xiaoxia.de/">xiaoxia.de</a>\n\n捐贈：\n<a href="http://xiaoxia.de/upload/donation.html">xiaoxia.de/upload/donation.html</a></string>
+    <string name="about_msg"><b>歡迎使用這個 Xposed 模組\n希望能給你帶來一點方便：）</b>\n\n我的博客: <a href="http://xiaoxia.de/">xiaoxia.de</a>\n\n捐贈：\n<a href="http://xiaoxia.de/upload/donation.html">xiaoxia.de/upload/donation.html</a></string>
     <string name="settings">設置</string>
     <string name="ok">確定</string>
     <string name="cancel">取消</string>
@@ -23,12 +23,13 @@
     <string name="help_msg">沒有資料有效性檢查，請確保您輸入的時間段正確。\n\n時間段標題是可選設置，儘量減少字元。\n\n如果時間段之間重複或者衝突，排列在前的時間段設置擁有更高的優先順序。\n\n時間段請勿越過或結束於 00:00，如果有需要請設置為 AA:BB ~ 23:59 和 00:00 ~ CC:DD。</string>
     <string name="desc">"完全掌控您的時鐘文字。
 [點擊這裡進入設置，重啟後生效]"</string>
-    <string name="position">附加文字位置</string>
+    <string name="position">文字位置</string>
     <string name="left">左邊</string>
     <string name="right">右邊</string>
+    <string name="left_s">左邊</string>
+    <string name="right_s">右邊</string>
     <string name="position_summary_1">"附加到時鐘"</string>
     <string name="position_summary_2">""</string>
-    <string name="size">附加文字大小</string>
     <string name="s13">1.3 倍</string>
     <string name="s12">1.2 倍</string>
     <string name="s11">1.1 倍</string>
@@ -43,11 +44,10 @@
     <string name="date_first">日期文字優先</string>
     <string name="display_date">附加日期文字</string>
     <string name="display_date_summary_off">無操作</string>
-    <string name="display_date_summary_on">在時鐘旁附加日期</string>
-    <string name="position_date">附加日期文字位置</string>
-    <string name="size_date">附加日期文字大小</string>
+    <string name="display_date_summary_on">附加日期文本到時鐘</string>
+    <string name="size">文字大小</string>
     <string name="priority_date">附加資訊顯示順序（同側）</string>
-    <string name="format_date">附加日期格式</string>
+    <string name="format_date">日期格式</string>
     <string name="format_msg">yy [yyyy] = 年 (14 [2014])\nM [MM, MMM] = 月 (8 [08, 8月])\nd [dd] = 日 (1 [01])\nE = 星期 (週一)\nHH [H, hh, h] = 小時 (13 [13, 01, 1])\nmm [m] = 分鐘 (02 [2])\n## = 時間段資訊文本\n\n注意：請參考 SimpleDateFormat 的使用手冊，不要添加非法的英文字元。\n\n使用英文引號將不想轉換為日期時間的部分包圍起來。</string>
     <string name="customize_setting">自訂時間段和文本設置</string>
     <string name="info">基於時間段的資訊文字設置</string>
@@ -57,28 +57,31 @@
     <string name="basic_info">附加資訊文本</string>
     <string name="basic_info_summary_off">無操作</string>
     <string name="basic_info_summary_on">附加資訊文本到時鐘</string>
-    <string name="press_color_to_apply">點擊顏色應用</string>
+    <string name="press_color_to_apply">點擊顏色以應用</string>
     <string name="dialog_color_picker">顏色拾取器</string>
-    <string name="color_clock">原生時鐘文本顏色</string>
-    <string name="color_clock_summary_on">自訂顏色</string>
-    <string name="color_clock_summary_off">系統預設</string>
-    <string name="color_clock_s">原生時鐘文本顏色</string>
-    <string name="color_clock_summary">選擇您喜歡的原生時鐘文本顏色</string>
-    <string name="color_info">資訊文本顏色</string>
-    <string name="color_info_summary">選擇您喜歡的資訊文本顏色</string>
-    <string name="color_info_s">資訊文本顏色</string>
-    <string name="color_date">日期文本顏色</string>
-    <string name="color_date_summary">選擇您喜歡的日期文本顏色</string>
-    <string name="color_date_s">日期文本顏色</string>
+    <string name="color_summary_on">自訂顏色</string>
+    <string name="color_summary_off">系統預設</string>
+    <string name="color">文本顏色</string>
+    <string name="color_summary">選擇您喜歡的文本顏色</string>
+    <string name="color_s">文本顏色</string>
     <string name="force">強制應用</string>
     <string name="force_summary_off">僅在模組無效時使用</string>
     <string name="force_summary_on">鉤在 TextView 控制項</string>
     <string name="center">時鐘居中</string>
     <string name="center_summary_off">系統預設</string>
     <string name="center_summary_on">時鐘居中</string>
-    <string name="cat_clock">時鐘設置</string>
+    <string name="cat_clock">原生時鐘設置</string>
     <string name="second">允許計秒</string>
     <string name="second_note">原生時鐘已經打開計秒。\n\n這會佔用一點資源，僅在需要時才打開。</string>
     <string name="second_summary_off">系統預設</string>
     <string name="second_summary_on">珍惜每一秒鐘</string>
+    <string name="cat_surrounding">環繞文本設置</string>
+    <string name="surrounding">附加環繞文本</string>
+    <string name="surrounding_summary_off">無操作</string>
+    <string name="surrounding_summary_on">附加環繞文本到時鐘</string>
+    <string name="surrounding_msg">留空取消此設置</string>
+    <string name="surrounding_left">左邊文本</string>
+    <string name="surrounding_right">右邊文本</string>
+    <string name="surrounding_position_in">時鐘文本之外</string>
+    <string name="surrounding_position_out">所有文本之外</string>
 </resources>

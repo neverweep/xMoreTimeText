@@ -45,15 +45,15 @@ public class Setting extends PreferenceActivity implements OnSharedPreferenceCha
 
         lp = (ListPreference) findPreference("position");
         if(lp.getValue().toString().equals("true")){
-            lp.setSummary(getString(R.string.position_summary_1) + getString(R.string.left) + getString(R.string.position_summary_2));
+            lp.setSummary(getString(R.string.position_summary_1) + getString(R.string.left_s) + getString(R.string.position_summary_2));
         }else{
-            lp.setSummary(getString(R.string.position_summary_1) + getString(R.string.right) + getString(R.string.position_summary_2));
+            lp.setSummary(getString(R.string.position_summary_1) + getString(R.string.right_s) + getString(R.string.position_summary_2));
         }
         lp = (ListPreference) findPreference("position_date");
         if(lp.getValue().toString().equals("true")){
-            lp.setSummary(getString(R.string.position_summary_1) + getString(R.string.left) + getString(R.string.position_summary_2));
+            lp.setSummary(getString(R.string.position_summary_1) + getString(R.string.left_s) + getString(R.string.position_summary_2));
         }else{
-            lp.setSummary(getString(R.string.position_summary_1) + getString(R.string.right) + getString(R.string.position_summary_2));
+            lp.setSummary(getString(R.string.position_summary_1) + getString(R.string.right_s) + getString(R.string.position_summary_2));
         }
         lp = (ListPreference) findPreference("priority_date");
         if(lp.getValue().toString().equals("true")){
@@ -78,6 +78,30 @@ public class Setting extends PreferenceActivity implements OnSharedPreferenceCha
             etp.setSummary(etp.getText());
         }else{
             etp.setSummary(getString(R.string.notset));
+        }
+        etp = (EditTextPreference) findPreference("surrounding_left");
+        if(!"".equals(etp.getText()) && etp.getText() != null){
+            etp.setSummary(etp.getText());
+        }else{
+            etp.setSummary(getString(R.string.notset));
+        }
+        etp = (EditTextPreference) findPreference("surrounding_right");
+        if(!"".equals(etp.getText()) && etp.getText() != null){
+            etp.setSummary(etp.getText());
+        }else{
+            etp.setSummary(getString(R.string.notset));
+        }
+        lp = (ListPreference) findPreference("size_surrounding");
+        if(lp.getValue().toString().equals("1.0") || "".equals(lp.getValue())){
+            lp.setSummary(R.string.s10);
+        }else{
+        	lp.setSummary(lp.getEntry());
+        }
+        lp = (ListPreference) findPreference("surrounding_position");
+        if(lp.getValue().equals("true")){
+            lp.setSummary(R.string.surrounding_position_in);
+        }else{
+        	lp.setSummary(lp.getEntry());
         }
     }
 
@@ -108,6 +132,14 @@ public class Setting extends PreferenceActivity implements OnSharedPreferenceCha
             sp = (SwitchPreference) findPreference("display_date");
             if(sp.isChecked() == false){
                 sp = (SwitchPreference) findPreference("color_date_s");
+                sp.setChecked(false);
+            }
+            return;
+        }
+        if(key.equals("surrounding")){
+            sp = (SwitchPreference) findPreference("surrounding");
+            if(sp.isChecked() == false){
+                sp = (SwitchPreference) findPreference("color_surrounding_s");
                 sp.setChecked(false);
             }
             return;
@@ -143,6 +175,11 @@ public class Setting extends PreferenceActivity implements OnSharedPreferenceCha
             lp.setSummary(lp.getEntry());
             return;
         }
+        if(key.equals("surrounding_position")){
+            lp = (ListPreference) findPreference("surrounding_position");
+            lp.setSummary(lp.getEntry());
+            return;
+        }
         if(key.equals("size")){
             lp = (ListPreference) findPreference("size");
             lp.setSummary(lp.getEntry());
@@ -158,8 +195,31 @@ public class Setting extends PreferenceActivity implements OnSharedPreferenceCha
             lp.setSummary(lp.getEntry());
             return;
         }
+        if(key.equals("size_surrounding")){
+            lp = (ListPreference) findPreference("size_surrounding");
+            lp.setSummary(lp.getEntry());
+            return;
+        }
         if(key.equals("format_date")){
             etp = (EditTextPreference) findPreference("format_date");
+            if(!"".equals(etp.getText()) && etp.getText() != null){
+                etp.setSummary(etp.getText());
+            }else{
+                etp.setSummary(getString(R.string.notset));
+            }
+            return;
+        }
+        if(key.equals("surrounding_left")){
+            etp = (EditTextPreference) findPreference("surrounding_left");
+            if(!"".equals(etp.getText()) && etp.getText() != null){
+                etp.setSummary(etp.getText());
+            }else{
+                etp.setSummary(getString(R.string.notset));
+            }
+            return;
+        }
+        if(key.equals("surrounding_right")){
+            etp = (EditTextPreference) findPreference("surrounding_right");
             if(!"".equals(etp.getText()) && etp.getText() != null){
                 etp.setSummary(etp.getText());
             }else{

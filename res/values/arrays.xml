@@ -38,4 +38,12 @@
         <item>true</item>
         <item>false</item>
     </string-array>
+    <string-array name="surrounding_position">
+        <item>@string/surrounding_position_in</item>
+        <item>@string/surrounding_position_out</item>
+    </string-array>
+    <string-array name="surrounding_position_values">
+        <item>true</item>
+        <item>false</item>
+    </string-array>
 </resources>

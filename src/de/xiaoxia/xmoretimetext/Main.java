@@ -46,9 +46,12 @@ public class Main implements IXposedHookLoadPackage, IXposedHookInitPackageResou
 
     private static CharSequence info;
     private static CharSequence finalTextSpan;
+    private static CharSequence finalClockSpan;
     private static SpannableString infoSpan;
     private static SpannableString dateSpan;
     private static SpannableString clockSpan;
+    private static SpannableString leftSpan;
+    private static SpannableString rightSpan;
     private static String[] preText;
     private static SimpleDateFormat sdf;
     private static SimpleDateFormat sdfSecond;
@@ -66,25 +69,60 @@ public class Main implements IXposedHookLoadPackage, IXposedHookInitPackageResou
     private static String marker;
     private static Boolean hasMarker;
     private static Boolean markerAtHead;
+    private static Boolean is24h;
 
     //使用Xposed提供的XSharedPreferences方法来读取android内置的SharedPreferences设置
     private final static XSharedPreferences prefs = new XSharedPreferences(Main.class.getPackage().getName());
-    //以秒显示
-    protected final static Boolean _second = prefs.getBoolean("second", false);
-    //是否显示信息
+
+
+    /*Basic*/
+    //是否居中
     protected final static Boolean _center = prefs.getBoolean("center", false);
-    //是否显示信息
-    protected final static Boolean _info = prefs.getBoolean("basic_info", true);
+    //强制更新
+    protected final static Boolean _force =  prefs.getBoolean("force", false);
+
+    /*Clock*/
     //显示时钟
     protected final static Boolean _clock = prefs.getBoolean("clock", false);
     //删除原字符
     protected final static Boolean _filter = prefs.getBoolean("filter", false);
-    //自定义
+    //以秒显示
+    protected final static Boolean _second = prefs.getBoolean("second", false);
+    //自定义原生时钟颜色
+    protected final static int _color_clock = prefs.getInt("color_clock", -16777216);
+    //自定义原生时钟颜色开关
+    protected final static Boolean _color_clock_s = prefs.getBoolean("color_clock_s", false);
+
+    /*Info*/
+    //是否显示信息
+    protected final static Boolean _info = prefs.getBoolean("basic_info", false);
+    //自定义信息
     protected final static Boolean _customize = prefs.getBoolean("customize", false);
-    //自定义位置
+    //自定义信息位置
     protected final static Boolean _position = prefs.getString("position", "true").equals("true");
-    //自定义大小
+    //自定义信息大小
     protected final static Float _size = Float.valueOf(prefs.getString("size", "1.0"));
+    //自定义信息颜色
+    protected final static int _color_info = prefs.getInt("color_info", -16777216);
+    //自定义信息颜色开关
+    protected final static Boolean _color_info_s =  prefs.getBoolean("color_info_s", false);
+
+    /*Surrounding*/
+    //自定义环绕开关
+    protected static Boolean _surrounding =  prefs.getBoolean("surrounding", false);
+    //自定义环绕文本
+    protected final static String _surrounding_left =  prefs.getString("surrounding_left", "");
+    protected final static String _surrounding_right =  prefs.getString("surrounding_right", "");
+    //自定义环绕大小
+    protected final static Float _size_surrounding = Float.valueOf(prefs.getString("size_surrounding", "1.0"));
+    //自定义环绕颜色
+    protected final static int _color_surrounding = prefs.getInt("color_surrounding", -16777216);
+    //自定义环绕颜色开关
+    protected final static Boolean _color_surrounding_s =  prefs.getBoolean("color_surrounding_s", false);
+    //自定义环绕位置
+    protected final static Boolean _surrounding_position =  prefs.getString("surrounding_position", "true").equals("true");
+
+    /*Date*/
     //是否显示日期
     protected final static Boolean _display_date = prefs.getBoolean("display_date", false);
     //自定义日期位置
@@ -95,25 +133,17 @@ public class Main implements IXposedHookLoadPackage, IXposedHookInitPackageResou
     protected final static String _format_date = prefs.getString("format_date", "").trim();
     //自定义日期大小
     protected final static Float _size_date = Float.valueOf(prefs.getString("size_date", "1.0"));
-    //自定义原生时钟颜色
-    protected final static int _color_clock = prefs.getInt("color_clock", -16777216);
-    //自定义原生时钟颜色开关
-    protected final static Boolean _color_clock_s = prefs.getBoolean("color_clock_s", false);
-    //自定义信息颜色
-    protected final static int _color_info = prefs.getInt("color_info", -16777216);
-    //自定义信息颜色开关
-    protected final static Boolean _color_info_s =  prefs.getBoolean("color_info_s", false);
     //自定义日期颜色
     protected final static int _color_date = prefs.getInt("color_date", -16777216);
     //自定义日期颜色开关
     protected final static Boolean _color_date_s =  prefs.getBoolean("color_date_s", false);
-    //强制更新
-    protected final static Boolean _force =  prefs.getBoolean("force", false);
-    //判断时间段是否可用的布尔数组
+    
+
+    //判断时间段是否可用的布尔数组 time period validation array 
     private static Boolean[] pValidaty = {
         false, false, false, false, false, false, false, false, false, false
     };
-    //读取自定义名称
+    //读取自定义名称 custom period titles array
     protected final static String[] pTitle = {
         prefs.getString("pt0", "").trim(),
         prefs.getString("pt1", "").trim(),
@@ -126,7 +156,7 @@ public class Main implements IXposedHookLoadPackage, IXposedHookInitPackageResou
         prefs.getString("pt8", "").trim(),
         prefs.getString("pt9", "").trim(),
     };
-    //读取自定义起始时间
+    //读取自定义起始时间 custom period start time
     protected final static int[] pStart = {
         Integer.parseInt(prefs.getString("ps0", "-1").replace(":", "")),
         Integer.parseInt(prefs.getString("ps1", "-1").replace(":", "")),
@@ -139,7 +169,7 @@ public class Main implements IXposedHookLoadPackage, IXposedHookInitPackageResou
         Integer.parseInt(prefs.getString("ps8", "-1").replace(":", "")),
         Integer.parseInt(prefs.getString("ps9", "-1").replace(":", "")),
     };
-    //读取自定义结束时间
+    //读取自定义结束时间  custom period end time
     protected final static int[] pEnd = {
         Integer.parseInt(prefs.getString("pe0", "-1").replace(":", "")),
         Integer.parseInt(prefs.getString("pe1", "-1").replace(":", "")),
@@ -155,14 +185,14 @@ public class Main implements IXposedHookLoadPackage, IXposedHookInitPackageResou
 
     @SuppressLint("SimpleDateFormat")
     public void handleLoadPackage(final LoadPackageParam lpparam) {
-        //如果不是systemui则跳过
+        //如果不是systemui则跳过 return if package is not systemui
         if (!lpparam.packageName.equals(PACKAGE_NAME))
             return;
 
-        //读取语言设置
+        //读取语言设置 load android area and lang settings
         String local = Locale.getDefault().getCountry();
         String lan = Locale.getDefault().getLanguage(); 
-        //根据语言设置默认文字
+        //根据语言设置默认文字 set default period titles based on lang and area
         if (local.contains("TW") || local.contains("HK") || local.contains("MO")) {
             preText = new String[] {
                 "淩晨", "早晨", "上午", "中午", "中午", "下午", "傍晚", "晚上"
@@ -177,29 +207,41 @@ public class Main implements IXposedHookLoadPackage, IXposedHookInitPackageResou
             };
         }
 
-        //根据设置来设置某项时间段是否可用
+        //根据设置来设置某项时间段是否可用 set a boolean to know if the period is validated
         for (int i = 0; i <= 9; i++) {
             pValidaty[i] = !"".equals(pEnd[i]) && !"".equals(pStart[i]) && pEnd[i] != -1 && pStart[i] != -1;
         }
 
-        //判断日期格式字符串是否有效，否则有些步骤没必要进行
+        //判断日期格式字符串是否有效，否则有些步骤没必要进行 if the user custom date format is validated or not
         isFormatOk = !"".equals(_format_date) && _format_date != null;
-        //初始化SimpleDateFormat对象
+        //初始化SimpleDateFormat对象 init sdf obeject
         if(isFormatOk)
             sdf = new SimpleDateFormat(_format_date);
         sdfInfo = new SimpleDateFormat("HHmm");
         sdfMarker = new SimpleDateFormat("a");
 
+        _surrounding = _surrounding && (!"".equals(_surrounding_left) || !"".equals(_surrounding_right));
+        if(_surrounding){
+            leftSpan =  new SpannableString(_surrounding_left);
+            rightSpan =  new SpannableString(_surrounding_right);
+            leftSpan.setSpan(new RelativeSizeSpan(_size_surrounding), 0, leftSpan.length(), 0);
+            rightSpan.setSpan(new RelativeSizeSpan(_size_surrounding), 0, rightSpan.length(), 0);
+            if(_color_surrounding_s){
+                leftSpan.setSpan(new ForegroundColorSpan(_color_surrounding), 0, leftSpan.length(), 0);
+                rightSpan.setSpan(new ForegroundColorSpan(_color_surrounding), 0, rightSpan.length(), 0);
+            }
+        }
+
         if(_second){
-            //如果需要按秒计时，在clock更新后立即更新同时避免每秒更新date和info
+            //如果需要按秒计时，在clock更新后立即更新同时避免每秒更新date和info  if enable seconds is set to true. keep updating date and info text every minute. not every second.
             findAndHookMethod(CLASS_NAME, lpparam.classLoader, "updateClock", new XC_MethodHook(){
                 @Override
                 protected void afterHookedMethod(MethodHookParam param) {
-                    if (mClock != null && _second){
+                    if (mClock != null){
                         timerStart();
                         if(!_filter)
                             marker = sdfMarker.format(System.currentTimeMillis());
-                        updateInfoAndDate(); //放在这里每分钟更新一次，避免消耗资源
+                        updateInfoAndDate(); //放在这里每分钟更新一次，避免消耗资源 avoid cost much cpu resource
                         tick(false);
                     }
                 }
@@ -209,10 +251,10 @@ public class Main implements IXposedHookLoadPackage, IXposedHookInitPackageResou
             findAndHookMethod(CLASS_NAME, lpparam.classLoader, _force ? "updateClock" : "getSmallTime", new XC_MethodHook(){
                 @Override
                 protected void afterHookedMethod(MethodHookParam param) {
-                    //获取vClock对象
+                    //获取vClock对象 get the vclock object
                     vClock = XposedHelpers.getAdditionalInstanceField(param.thisObject, "vClock");
 
-                    //如果vClock == null 说明此时是扩展状态栏，如果没有在扩展显示的必要，则直接跳过以下所有步骤
+                    //如果vClock == null 说明此时是扩展状态栏，如果没有在扩展显示的必要，则直接跳过以下所有步骤 if vClock == null, the statusbar is expended. no need to update clock text.
                     if(vClock != null){
                         //获取时钟的文字
                         if(_force){
@@ -222,7 +264,7 @@ public class Main implements IXposedHookLoadPackage, IXposedHookInitPackageResou
                             clockText = param.getResult().toString();
                         }
 
-                        updateInfoAndDate();
+                        updateInfoAndDate();//更新info和date信息 update date and info text
 
                         if(_force){
                             //写入textView
@@ -306,10 +348,11 @@ public class Main implements IXposedHookLoadPackage, IXposedHookInitPackageResou
                         String mText = mClock.getText().toString().trim();
                         markerAtHead = mText.indexOf(":") > 4 ? false : true;
                         hasMarker = mText.length() >= 7;
-                        //根据系统是否是24小时制决定以秒计时的格式
+                        //根据系统是否是24小时制决定以秒计时的格式 know if the android is 24h or 12h
                         cv = mClock.getContext().getContentResolver();
                         String strTimeFormat = android.provider.Settings.System.getString(cv, android.provider.Settings.System.TIME_12_24);
-                        if (strTimeFormat != null && strTimeFormat.equals("24")) {
+                        is24h = strTimeFormat != null && strTimeFormat.equals("24");
+                        if (is24h) {
                             sdfSecond = new SimpleDateFormat("H:mm:ss");
                         }else{
                             sdfSecond = new SimpleDateFormat("h:mm:ss");
@@ -323,7 +366,7 @@ public class Main implements IXposedHookLoadPackage, IXposedHookInitPackageResou
     }
 
     private static void updateInfoAndDate(){
-        int hm = Integer.parseInt(sdfInfo.format(System.currentTimeMillis())); //读取时间，hmm
+        int hm = Integer.parseInt(sdfInfo.format(System.currentTimeMillis())); //读取时间  read time string as "hmm" format.
         //如果打开自定义，则
         if (_customize) {
             //时间判断
@@ -382,8 +425,8 @@ public class Main implements IXposedHookLoadPackage, IXposedHookInitPackageResou
     private static CharSequence textParse(String originalClockText){
         if(_clock){
             if(_second){
-                //这里的内容是每秒要更新的
-                if(!_filter){
+                //这里的内容是每秒要更新的 update every second
+                if(!(_filter && is24h)){
                     originalClockText = hasMarker ? markerAtHead ? marker + " " + sdfSecond.format(System.currentTimeMillis()) : sdfSecond.format(System.currentTimeMillis()) + " " + marker : sdfSecond.format(System.currentTimeMillis());
                 }else{
                     originalClockText = sdfSecond.format(System.currentTimeMillis());
@@ -399,8 +442,15 @@ public class Main implements IXposedHookLoadPackage, IXposedHookInitPackageResou
             //如果开启了显示原生时钟，且在设置了自定义颜色的情况下，进行处理
             if(_color_clock_s)
                 clockSpan.setSpan(new ForegroundColorSpan(_color_clock), 0, clockSpan.length(), 0);
+            finalClockSpan = clockSpan;
         }else{
             clockSpan = new SpannableString("");
+            finalClockSpan = clockSpan;
+        }
+
+        //如果环绕打开且在时钟外边 if surrounding on and set to displayed out of clock text
+        if(_surrounding && !_surrounding_position){
+            finalClockSpan = TextUtils.concat(leftSpan, clockSpan, rightSpan);
         }
 
         if(_position){
@@ -410,26 +460,31 @@ public class Main implements IXposedHookLoadPackage, IXposedHookInitPackageResou
                 //如果靠左
                 if(_priority_date){
                     //如果基本文字优先
-                    finalTextSpan = TextUtils.concat(infoSpan, infoSpan.length() > 0 ? " " : "", dateSpan, dateSpan.length() > 0 ? " " : "", clockSpan);
+                    finalTextSpan = TextUtils.concat(infoSpan, infoSpan.length() > 0 ? " " : "", dateSpan, dateSpan.length() > 0 ? " " : "", finalClockSpan);
                 }else{
                     //如果日期文字优先
-                    finalTextSpan = TextUtils.concat(dateSpan, dateSpan.length() > 0 ? " " : "", infoSpan, infoSpan.length() > 0 ? " " : "", clockSpan);
+                    finalTextSpan = TextUtils.concat(dateSpan, dateSpan.length() > 0 ? " " : "", infoSpan, infoSpan.length() > 0 ? " " : "", finalClockSpan);
                 }
             }else{
                 //如果靠右
-                finalTextSpan = TextUtils.concat(infoSpan, infoSpan.length() > 0 ? " " : "", clockSpan,dateSpan.length() > 0 ? " " : "", dateSpan);
+                finalTextSpan = TextUtils.concat(infoSpan, infoSpan.length() > 0 ? " " : "", finalClockSpan,dateSpan.length() > 0 ? " " : "", dateSpan);
             }
         }else{
             //基本文字居右
             if(_position_date){
-                finalTextSpan = TextUtils.concat(dateSpan, dateSpan.length() > 0 ? " " : "", clockSpan, infoSpan.length() > 0 ? " " : "", infoSpan);
+                finalTextSpan = TextUtils.concat(dateSpan, dateSpan.length() > 0 ? " " : "", finalClockSpan, infoSpan.length() > 0 ? " " : "", infoSpan);
             }else{
                 if(_priority_date){
-                    finalTextSpan = TextUtils.concat(clockSpan, infoSpan.length() > 0 ? " " : "", infoSpan, dateSpan.length() > 0 ? " " : "", dateSpan);
+                    finalTextSpan = TextUtils.concat(finalClockSpan, infoSpan.length() > 0 ? " " : "", infoSpan, dateSpan.length() > 0 ? " " : "", dateSpan);
                 }else{
-                    finalTextSpan = TextUtils.concat(clockSpan, dateSpan.length() > 0 ? " " : "", dateSpan, infoSpan.length() > 0 ? " " : "", infoSpan);
+                    finalTextSpan = TextUtils.concat(finalClockSpan, dateSpan.length() > 0 ? " " : "", dateSpan, infoSpan.length() > 0 ? " " : "", infoSpan);
                 }
             }
+        }
+
+        //如果环绕打开且在所有文字外边if surrounding on and set to displayed out of all text
+        if(_surrounding && _surrounding_position){
+            finalTextSpan = TextUtils.concat(leftSpan, finalTextSpan, rightSpan);
         }
         return finalTextSpan;
     }
@@ -466,7 +521,7 @@ public class Main implements IXposedHookLoadPackage, IXposedHookInitPackageResou
     }
 
     private static void waitOneSecond() { 
-        mHandler.postDelayed(mTicker, 990);
+        mHandler.postDelayed(mTicker, 985);
     }
 
     private static void tickOnThread() {
@@ -489,6 +544,7 @@ public class Main implements IXposedHookLoadPackage, IXposedHookInitPackageResou
             }
         }
     }
+
     private static void setClockTextOnHandler(final CharSequence time) {
         if (mHandler == null) {
             mHandler = new Handler(mClock.getContext().getMainLooper());
