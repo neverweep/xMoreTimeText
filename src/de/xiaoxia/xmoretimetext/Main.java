@@ -62,7 +62,7 @@ public class Main implements IXposedHookLoadPackage, IXposedHookInitPackageResou
     private static Object vClock = null;
     private static Boolean isFormatOk;
     private static TextView textView;
-    private static TextView mClock;
+    private static TextView mClock = null;
     private static ContentResolver cv;
     private static Handler mHandler; 
     private static Runnable mTicker ;
@@ -70,6 +70,7 @@ public class Main implements IXposedHookLoadPackage, IXposedHookInitPackageResou
     private static Boolean hasMarker;
     private static Boolean markerAtHead;
     private static Boolean is24h;
+    private static Boolean secondRun = false;
 
     //使用Xposed提供的XSharedPreferences方法来读取android内置的SharedPreferences设置
     private final static XSharedPreferences prefs = new XSharedPreferences(Main.class.getPackage().getName());
@@ -237,12 +238,33 @@ public class Main implements IXposedHookLoadPackage, IXposedHookInitPackageResou
             findAndHookMethod(CLASS_NAME, lpparam.classLoader, "updateClock", new XC_MethodHook(){
                 @Override
                 protected void afterHookedMethod(MethodHookParam param) {
+                    if(mClock == null)
+                        mClock = (TextView) param.thisObject;
+
                     if (mClock != null){
-                        timerStart();
-                        if(!_filter)
-                            marker = sdfMarker.format(System.currentTimeMillis());
-                        updateInfoAndDate(); //放在这里每分钟更新一次，避免消耗资源 avoid cost much cpu resource
-                        tick(false);
+                        if(secondRun == false){
+                            secondRun = true;
+                            String mText = mClock.getText().toString().trim();
+                            markerAtHead = mText.indexOf(":") > 4 ? false : true;
+                            hasMarker = mText.length() >= 7;
+                            //根据系统是否是24小时制决定以秒计时的格式 know if the android is 24h or 12h
+                            cv = mClock.getContext().getContentResolver();
+                            String strTimeFormat = android.provider.Settings.System.getString(cv, android.provider.Settings.System.TIME_12_24);
+                            is24h = strTimeFormat != null && strTimeFormat.equals("24");
+                            if (is24h) {
+                                sdfSecond = new SimpleDateFormat("H:mm:ss");
+                            }else{
+                                sdfSecond = new SimpleDateFormat("h:mm:ss");
+                            }
+                            updateInfoAndDate();
+                            timerStart();
+                        }else{
+                            timerStart();
+                            if(!_filter)
+                                marker = sdfMarker.format(System.currentTimeMillis());
+                            updateInfoAndDate(); //放在这里每分钟更新一次，避免消耗资源 avoid cost much cpu resource
+                            tick(false);
+                        }
                     }
                 }
             });
@@ -285,28 +307,39 @@ public class Main implements IXposedHookLoadPackage, IXposedHookInitPackageResou
         if (!resparam.packageName.equals(PACKAGE_NAME))
             return;
 
-        resparam.res.hookLayout(PACKAGE_NAME, "layout", "super_status_bar", new XC_LayoutInflated() {
+        /*
+         * Center clock view and know if is expended status bar. 
+         * Thanks for the work of GravityBox by C3C076@xda
+         * https://github.com/GravityBox/GravityBox/blob/jellybean/src/com/ceco/gm2/gravitybox/ModStatusBar.java
+         *
+         *
+         * Copyright (C) 2013 Peter Gregus for GravityBox Project (C3C076@xda)
+         * Licensed under the Apache License, Version 2.0 (the "License");
+         * you may not use this file except in compliance with the License.
+         * You may obtain a copy of the License at
+         *
+         *      http://www.apache.org/licenses/LICENSE-2.0
+         *
+         * Unless required by applicable law or agreed to in writing, software
+         * distributed under the License is distributed on an "AS IS" BASIS,
+         * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+         * See the License for the specific language governing permissions and
+         * limitations under the License.
+         */
+
+        String layout = "lenovo_gemini_super_status_bar";
+        try{
+            resparam.res.hookLayout(PACKAGE_NAME, "layout", layout, new XC_LayoutInflated() {
+                @Override
+                public void handleLayoutInflated(LayoutInflatedParam liparam) throws Throwable {}
+            });
+        }catch(Throwable t){
+            layout = Utils.hasGeminiSupport() ? "gemini_super_status_bar" : "super_status_bar";
+        }
+
+        resparam.res.hookLayout(PACKAGE_NAME, "layout", layout, new XC_LayoutInflated() {
             @Override
             public void handleLayoutInflated(LayoutInflatedParam liparam){
-                /*
-                 * Center clock view and know if is expended status bar. 
-                 * Thanks for the work of GravityBox by C3C076@xda
-                 * https://github.com/GravityBox/GravityBox/blob/jellybean/src/com/ceco/gm2/gravitybox/ModStatusBar.java
-                 *
-                 *
-                 * Copyright (C) 2013 Peter Gregus for GravityBox Project (C3C076@xda)
-                 * Licensed under the Apache License, Version 2.0 (the "License");
-                 * you may not use this file except in compliance with the License.
-                 * You may obtain a copy of the License at
-                 *
-                 *      http://www.apache.org/licenses/LICENSE-2.0
-                 *
-                 * Unless required by applicable law or agreed to in writing, software
-                 * distributed under the License is distributed on an "AS IS" BASIS,
-                 * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-                 * See the License for the specific language governing permissions and
-                 * limitations under the License.
-                 */
                 Boolean mClockInSbContents = false;
 
                 String iconAreaId = Build.VERSION.SDK_INT > 16 ? "system_icon_area" : "icons";
@@ -343,24 +376,6 @@ public class Main implements IXposedHookLoadPackage, IXposedHookInitPackageResou
                 }
                 if(mClock != null)
                     XposedHelpers.setAdditionalInstanceField(mClock, "vClock", true);
-                if(_second){
-                    if(mClock != null){
-                        String mText = mClock.getText().toString().trim();
-                        markerAtHead = mText.indexOf(":") > 4 ? false : true;
-                        hasMarker = mText.length() >= 7;
-                        //根据系统是否是24小时制决定以秒计时的格式 know if the android is 24h or 12h
-                        cv = mClock.getContext().getContentResolver();
-                        String strTimeFormat = android.provider.Settings.System.getString(cv, android.provider.Settings.System.TIME_12_24);
-                        is24h = strTimeFormat != null && strTimeFormat.equals("24");
-                        if (is24h) {
-                            sdfSecond = new SimpleDateFormat("H:mm:ss");
-                        }else{
-                            sdfSecond = new SimpleDateFormat("h:mm:ss");
-                        }
-                        updateInfoAndDate();
-                        timerStart();
-                    }
-                }
             }
         });
     }
@@ -372,7 +387,6 @@ public class Main implements IXposedHookLoadPackage, IXposedHookInitPackageResou
             //时间判断
             info = "";
             for (int i = 0; i <= 9; i++) {
-                //XposedBridge.log(i + " -  EN:" + pValidaty[i] + " NOW:" + hm + " ED:" + pEnd[i] + " ST:" + pStart[i]);
                 if (pValidaty[i] && hm <= pEnd[i] && hm >= pStart[i]) {
                     info = pTitle[i];
                     break;
