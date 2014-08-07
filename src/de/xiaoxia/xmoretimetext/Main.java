@@ -401,7 +401,7 @@ public class Main implements IXposedHookLoadPackage, IXposedHookInitPackageResou
             info = "";
         }
 
-        if(_info){
+        if(_info & !"".equals(_info)){
             infoSpan = new SpannableString(info);
             infoSpan.setSpan(new RelativeSizeSpan(_size), 0, infoSpan.length(), 0);
             if(_color_info_s)
@@ -448,7 +448,7 @@ public class Main implements IXposedHookLoadPackage, IXposedHookInitPackageResou
             finalClockSpan = clockSpan;
         }
 
-        //如果环绕打开且在时钟外边 if surrounding on and set to displayed out of clock text
+        //如果环绕打开且在时钟外边 if surrounding on and set to be displayed out of clock text
         if(_surrounding && !_surrounding_position){
             finalClockSpan = TextUtils.concat(leftSpan, clockSpan, rightSpan);
         }
@@ -482,7 +482,7 @@ public class Main implements IXposedHookLoadPackage, IXposedHookInitPackageResou
             }
         }
 
-        //如果环绕打开且在所有文字外边if surrounding on and set to displayed out of all text
+        //如果环绕打开且在所有文字外边if surrounding on and set to be displayed out of all text
         if(_surrounding && _surrounding_position){
             finalTextSpan = TextUtils.concat(leftSpan, finalTextSpan, rightSpan);
         }
