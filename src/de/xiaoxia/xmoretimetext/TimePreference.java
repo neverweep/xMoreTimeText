@@ -1,3 +1,9 @@
+/*
+ * Tanis.7x
+ * http://stackoverflow.com/questions/5533078/timepicker-in-preferencescreen
+ *
+ */
+
 package de.xiaoxia.xmoretimetext;
 
 import java.text.DecimalFormat;
