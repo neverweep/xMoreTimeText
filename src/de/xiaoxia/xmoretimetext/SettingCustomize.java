@@ -60,7 +60,7 @@ public class SettingCustomize extends PreferenceActivity implements OnSharedPref
         pt = " " + getString(R.string.pt);
         tps = getString(R.string.tp) + " ";
 
-        for (int i = 0; i <= 9; i++) {
+        for (int i = 0; i <= 14; i++) {
             etp = (EditTextPreference) findPreference("pt" + i);
             if (!"".equals(etp.getText()) && etp.getText() != null) {
                 etp.setSummary(etp.getText());
@@ -80,7 +80,7 @@ public class SettingCustomize extends PreferenceActivity implements OnSharedPref
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
         //设置有变化、则重新读取设置并显示在界面上
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
-        for (int i = 0; i <= 9; i++) {
+        for (int i = 0; i <= 14; i++) {
             if (key.equals("pt" + i)) {
                 etp = (EditTextPreference) findPreference("pt" + i);
                 if (!"".equals(etp.getText()) && etp.getText() != null) {
@@ -142,7 +142,7 @@ public class SettingCustomize extends PreferenceActivity implements OnSharedPref
                         //删除时间段设置
                         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(SettingCustomize.this);
                         SharedPreferences.Editor editor = prefs.edit();
-                        for (int i = 0; i <= 9; i++) {
+                        for (int i = 0; i <= 14; i++) {
                             editor.remove("ps" + i);
                             editor.remove("pe" + i);
                             editor.remove("pt" + i);

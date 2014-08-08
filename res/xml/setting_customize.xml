@@ -44,4 +44,19 @@
         <EditTextPreference android:singleLine="true" android:title="@string/pt" android:key="pt9" android:summary="@string/notset"/>
         <de.xiaoxia.xmoretimetext.TimePreference android:key="ps9" android:title="@string/ps" />
         <de.xiaoxia.xmoretimetext.TimePreference android:key="pe9" android:title="@string/pe" />
+        <EditTextPreference android:singleLine="true" android:title="@string/pt" android:key="pt10" android:summary="@string/notset"/>
+        <de.xiaoxia.xmoretimetext.TimePreference android:key="ps10" android:title="@string/ps" />
+        <de.xiaoxia.xmoretimetext.TimePreference android:key="pe10" android:title="@string/pe" />
+        <EditTextPreference android:singleLine="true" android:title="@string/pt" android:key="pt11" android:summary="@string/notset"/>
+        <de.xiaoxia.xmoretimetext.TimePreference android:key="ps11" android:title="@string/ps" />
+        <de.xiaoxia.xmoretimetext.TimePreference android:key="pe11" android:title="@string/pe" />
+        <EditTextPreference android:singleLine="true" android:title="@string/pt" android:key="pt12" android:summary="@string/notset"/>
+        <de.xiaoxia.xmoretimetext.TimePreference android:key="ps12" android:title="@string/ps" />
+        <de.xiaoxia.xmoretimetext.TimePreference android:key="pe12" android:title="@string/pe" />
+        <EditTextPreference android:singleLine="true" android:title="@string/pt" android:key="pt13" android:summary="@string/notset"/>
+        <de.xiaoxia.xmoretimetext.TimePreference android:key="ps13" android:title="@string/ps" />
+        <de.xiaoxia.xmoretimetext.TimePreference android:key="pe13" android:title="@string/pe" />
+        <EditTextPreference android:singleLine="true" android:title="@string/pt" android:key="pt14" android:summary="@string/notset"/>
+        <de.xiaoxia.xmoretimetext.TimePreference android:key="ps14" android:title="@string/ps" />
+        <de.xiaoxia.xmoretimetext.TimePreference android:key="pe14" android:title="@string/pe" />
     </PreferenceScreen>
