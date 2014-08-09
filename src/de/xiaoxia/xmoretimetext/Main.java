@@ -28,15 +28,17 @@ import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.res.Resources;
 import android.os.Build;
 import android.os.Handler;
 import android.text.SpannableString;
 import android.text.TextUtils;
 import android.text.style.ForegroundColorSpan;
 import android.text.style.RelativeSizeSpan;
-import android.util.Log;
 import android.view.Gravity;
+import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.Animation;
 import android.widget.LinearLayout;
 import android.widget.LinearLayout.LayoutParams;
 import android.widget.TextView;
@@ -81,12 +83,16 @@ public class Main implements IXposedHookLoadPackage, IXposedHookInitPackageResou
     private static Boolean markerAtHead;
     private static Boolean is24h;
     private static Boolean secondRun = false;
-    static SimpleDateFormat dateFormatGmt;
-    static SimpleDateFormat dateFormatLocal;
+    private static ViewGroup mIconArea;
+    private static ViewGroup mRootView;
+    private static LinearLayout mLayoutClock;
+    private static Object mPhoneStatusBar;
+    private static int mAnimPushUpOut;
+    private static int mAnimPushDownIn;
+    private static int mAnimFadeIn;
 
     //使用Xposed提供的XSharedPreferences方法来读取android内置的SharedPreferences设置
     private final static XSharedPreferences prefs = new XSharedPreferences(Main.class.getPackage().getName());
-
 
     /*Basic*/
     //是否居中
@@ -252,6 +258,7 @@ public class Main implements IXposedHookLoadPackage, IXposedHookInitPackageResou
         sdfMarker = new SimpleDateFormat("a");
         sdfSecond = new SimpleDateFormat("h:mm:ss");
 
+        //环绕文字的初始化
         _surrounding = _surrounding && (!"".equals(_surrounding_left) || !"".equals(_surrounding_right));
         if(_surrounding){
             leftSpan =  new SpannableString(_surrounding_left);
@@ -264,6 +271,10 @@ public class Main implements IXposedHookLoadPackage, IXposedHookInitPackageResou
             }
         }
 
+        if(_center)
+            initClockAnim(lpparam.classLoader);
+
+        //判断是否开启秒数
         if(_second){
             //如果需要按秒计时，在clock更新后立即更新同时避免每秒更新date和info  if enable seconds is set to true. keep updating date and info text every minute. not every second.
             findAndHookMethod(CLASS_NAME, lpparam.classLoader, "updateClock", new XC_MethodHook(){
@@ -333,31 +344,84 @@ public class Main implements IXposedHookLoadPackage, IXposedHookInitPackageResou
         }
     }
 
+    /*
+     * Center clock view and know if is expended status bar.
+     * Center clock ticker animation
+     * Thanks for the work of GravityBox by C3C076@xda
+     * https://github.com/GravityBox/GravityBox/blob/jellybean/src/com/ceco/gm2/gravitybox/ModStatusBar.java
+     *
+     *
+     * Copyright (C) 2013 Peter Gregus for GravityBox Project (C3C076@xda)
+     * Licensed under the Apache License, Version 2.0 (the "License");
+     * you may not use this file except in compliance with the License.
+     * You may obtain a copy of the License at
+     *
+     *      http://www.apache.org/licenses/LICENSE-2.0
+     *
+     * Unless required by applicable law or agreed to in writing, software
+     * distributed under the License is distributed on an "AS IS" BASIS,
+     * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     * See the License for the specific language governing permissions and
+     * limitations under the License.
+     */
+
+    public static void initClockAnim(final ClassLoader classLoader) {
+        final Class<?> phoneStatusBarClass = XposedHelpers.findClass("com.android.systemui.statusbar.phone.PhoneStatusBar", classLoader);
+        final Class<?> tickerClass = XposedHelpers.findClass("com.android.systemui.statusbar.phone.PhoneStatusBar$MyTicker", classLoader);
+        final Class<?>[] loadAnimParamArgs = new Class<?>[2];
+        loadAnimParamArgs[0] = int.class;
+        loadAnimParamArgs[1] = Animation.AnimationListener.class;
+
+        XposedHelpers.findAndHookMethod(phoneStatusBarClass, "makeStatusBarView", new XC_MethodHook() {
+            @Override
+            protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+                mPhoneStatusBar = param.thisObject;
+                Resources res = ((Context) XposedHelpers.getObjectField(mPhoneStatusBar, "mContext")).getResources();
+                mAnimPushUpOut = res.getIdentifier("push_up_out", "anim", "android");
+                mAnimPushDownIn = res.getIdentifier("push_down_in", "anim", "android");
+                mAnimFadeIn = res.getIdentifier("fade_in", "anim", "android");
+            }
+        });
+
+        XposedHelpers.findAndHookMethod(tickerClass, "tickerStarting", new XC_MethodHook() {
+            @Override
+            protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+                if (mLayoutClock == null)
+                    return;
+                mLayoutClock.setVisibility(View.GONE);
+                Animation anim = (Animation) XposedHelpers.callMethod(mPhoneStatusBar, "loadAnim", loadAnimParamArgs, mAnimPushUpOut, null);
+                mLayoutClock.startAnimation(anim);
+            }
+        });
+
+        XposedHelpers.findAndHookMethod(tickerClass, "tickerDone", new XC_MethodHook() {
+            @Override
+            protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+                if (mLayoutClock == null)
+                    return;
+                mLayoutClock.setVisibility(View.VISIBLE);
+                Animation anim = (Animation) XposedHelpers.callMethod(mPhoneStatusBar, "loadAnim", loadAnimParamArgs, mAnimPushDownIn, null);
+                mLayoutClock.startAnimation(anim);
+            }
+        });
+
+        XposedHelpers.findAndHookMethod(tickerClass, "tickerHalting", new XC_MethodHook() {
+            @Override
+            protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+                if (mLayoutClock == null)
+                    return;
+                mLayoutClock.setVisibility(View.VISIBLE);
+                Animation anim = (Animation) XposedHelpers.callMethod(mPhoneStatusBar, "loadAnim", loadAnimParamArgs, mAnimFadeIn, null);
+                mLayoutClock.startAnimation(anim);
+            }
+        });
+    }
+
     //此处的作用为：在systemui初始化资源的过程中，向状态栏clock加入一个没用的vClock，然后就可以判断是不是为状态栏的Clock了。
     @SuppressLint("SimpleDateFormat")
     public void handleInitPackageResources(final InitPackageResourcesParam resparam) {
         if (!resparam.packageName.equals(PACKAGE_NAME))
             return;
-
-        /*
-         * Center clock view and know if is expended status bar.
-         * Thanks for the work of GravityBox by C3C076@xda
-         * https://github.com/GravityBox/GravityBox/blob/jellybean/src/com/ceco/gm2/gravitybox/ModStatusBar.java
-         *
-         *
-         * Copyright (C) 2013 Peter Gregus for GravityBox Project (C3C076@xda)
-         * Licensed under the Apache License, Version 2.0 (the "License");
-         * you may not use this file except in compliance with the License.
-         * You may obtain a copy of the License at
-         *
-         *      http://www.apache.org/licenses/LICENSE-2.0
-         *
-         * Unless required by applicable law or agreed to in writing, software
-         * distributed under the License is distributed on an "AS IS" BASIS,
-         * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-         * See the License for the specific language governing permissions and
-         * limitations under the License.
-         */
 
         String layout = "lenovo_gemini_super_status_bar";
         try{
@@ -372,41 +436,46 @@ public class Main implements IXposedHookLoadPackage, IXposedHookInitPackageResou
         resparam.res.hookLayout(PACKAGE_NAME, "layout", layout, new XC_LayoutInflated() {
             @Override
             public void handleLayoutInflated(LayoutInflatedParam liparam){
-                Boolean mClockInSbContents = false;
-
-                String iconAreaId = Build.VERSION.SDK_INT > 16 ? "system_icon_area" : "icons";
-                ViewGroup mIconArea = (ViewGroup) liparam.view.findViewById(liparam.res.getIdentifier(iconAreaId, "id", PACKAGE_NAME));
-                if (mIconArea == null)
-                    return;
-
-                ViewGroup mRootView = (ViewGroup) liparam.view.findViewById(liparam.res.getIdentifier("status_bar", "id", PACKAGE_NAME));
-                if (mRootView == null)
-                    return;
-
-                LinearLayout mLayoutClock = new LinearLayout(liparam.view.getContext());
-                mLayoutClock.setLayoutParams(new LinearLayout.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
-                mLayoutClock.setGravity(Gravity.CENTER);
-                mRootView.addView(mLayoutClock);
-
-                ViewGroup mSbContents = Build.VERSION.SDK_INT > 16 ? (ViewGroup) liparam.view.findViewById(liparam.res.getIdentifier("status_bar_contents", "id", PACKAGE_NAME)) : mIconArea;
-                mClock = (TextView) mIconArea.findViewById(liparam.res.getIdentifier("clock", "id", PACKAGE_NAME));
-                if (mClock == null && mSbContents != null) {
-                    mClock = (TextView) mSbContents.findViewById(liparam.res.getIdentifier("clock", "id", PACKAGE_NAME));
-                    mClockInSbContents = mClock != null;
-                }
 
                 if(_center){
+                    Boolean mClockInSbContents = false;
+                    String iconAreaId = Build.VERSION.SDK_INT > 16 ? "system_icon_area" : "icons";
+                    mIconArea = (ViewGroup) liparam.view.findViewById(liparam.res.getIdentifier(iconAreaId, "id", PACKAGE_NAME));
+                    if (mIconArea == null)
+                        return;
+
+                    mRootView = (ViewGroup) liparam.view.findViewById(liparam.res.getIdentifier("status_bar", "id", PACKAGE_NAME));
+                    if (mRootView == null)
+                        return;
+
+                    mLayoutClock = new LinearLayout(liparam.view.getContext());
+                    mLayoutClock.setLayoutParams(new LinearLayout.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
+                    mLayoutClock.setGravity(Gravity.CENTER);
+                    mRootView.addView(mLayoutClock);
+
+                    ViewGroup mSbContents = Build.VERSION.SDK_INT > 16 ? (ViewGroup) liparam.view.findViewById(liparam.res.getIdentifier("status_bar_contents", "id", PACKAGE_NAME)) : mIconArea;
+                    mClock = (TextView) mIconArea.findViewById(liparam.res.getIdentifier("clock", "id", PACKAGE_NAME));
+
+                    if (mClock == null && mSbContents != null) {
+                        mClock = (TextView) mSbContents.findViewById(liparam.res.getIdentifier("clock", "id", PACKAGE_NAME));
+                        mClockInSbContents = mClock != null;
+                    }
+
                     if (mClockInSbContents) {
                         mSbContents.removeView(mClock);
                     } else {
                         mIconArea.removeView(mClock);
                     }
+
                     mClock.setGravity(Gravity.CENTER);
                     mClock.setLayoutParams(new LinearLayout.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
                     mClock.setPadding(0, 0, 0, 0);
                     mSbContents.removeView(mClock);
                     mLayoutClock.addView(mClock);
+                }else{
+                    mClock = (TextView) liparam.view.findViewById(liparam.res.getIdentifier("clock", "id", PACKAGE_NAME));
                 }
+
                 if(mClock != null){
                     //注册事件
                     IntentFilter intent = new IntentFilter();
@@ -465,14 +534,12 @@ public class Main implements IXposedHookLoadPackage, IXposedHookInitPackageResou
         }
 
         if(_display_date && isFormatOk){
-            Log.e("egwegweg", "in");
             date = sdf.format(System.currentTimeMillis()).replace("##", info);
             dateSpan = new SpannableString(date);
             dateSpan.setSpan(new RelativeSizeSpan(_size_date), 0, dateSpan.length(), 0);
             if(_color_date_s)
                 dateSpan.setSpan(new ForegroundColorSpan(_color_date), 0, dateSpan.length(), 0);
         }else{
-            Log.e("egwegweg", "out");
             dateSpan = new SpannableString("");
         }
     }
