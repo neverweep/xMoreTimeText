@@ -40,11 +40,12 @@ public class Setting extends PreferenceActivity implements OnSharedPreferenceCha
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        addPreferencesFromResource(R.xml.setting);
+        getPreferenceManager().setSharedPreferencesMode(MODE_WORLD_READABLE);
+		addPreferencesFromResource(R.xml.setting);
 
-        //¼àÌısharedPreferences±ä»¯
+        //ç›‘å¬sharedPreferenceså˜åŒ–
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
-        //×¢²á¼àÌıÊÂ¼ş
+        //æ³¨å†Œç›‘å¬äº‹ä»¶
         prefs.registerOnSharedPreferenceChangeListener(this);
 
         lp = (ListPreference) findPreference("position");
@@ -112,7 +113,7 @@ public class Setting extends PreferenceActivity implements OnSharedPreferenceCha
     @SuppressWarnings("deprecation")
     @Override
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
-        //ÉèÖÃÓĞ±ä»¯¡¢ÔòÖØĞÂ¶ÁÈ¡ÉèÖÃ²¢ÏÔÊ¾ÔÚ½çÃæÉÏ
+        //è®¾ç½®æœ‰å˜åŒ–ã€åˆ™é‡æ–°è¯»å–è®¾ç½®å¹¶æ˜¾ç¤ºåœ¨ç•Œé¢ä¸Š
         if(key.equals("second")){
             sp = (SwitchPreference) findPreference("second");
             if(sp.isChecked()){
@@ -233,25 +234,25 @@ public class Setting extends PreferenceActivity implements OnSharedPreferenceCha
         }
     }
 
-    //´´½¨ActionBarÓÒÉÏ½Ç°´Å¥
+    //åˆ›å»ºActionBarå³ä¸Šè§’æŒ‰é’®
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();
-        inflater.inflate(R.menu.menu, menu); //²Ëµ¥Ñ¡Ïîµ÷ÓÃ /menu/about.xml
+        inflater.inflate(R.menu.menu, menu); //èœå•é€‰é¡¹è°ƒç”¨ /menu/about.xml
         return true;
     }
 
-    //°´Å¥µã»÷ĞĞÎª
+    //æŒ‰é’®ç‚¹å‡»è¡Œä¸º
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         LayoutInflater inflater = LayoutInflater.from(this);
         final AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        //¹ØÓÚ
-        builder.setIcon(R.drawable.ic_info); //Í¼±ê×ÊÔ´µ÷ÓÃ /drawable/ic_info
-        builder.setTitle(R.string.about); //±êÌâÉèÎª @string/about
-        builder.setView(inflater.inflate(R.layout.about, null)); //ÉèÖÃ²¼¾Ö
-        builder.setPositiveButton(R.string.ok, null); //ÉèÖÃ°´Å¥£¬½öÉèÖÃÒ»¸öÈ·¶¨°´Å¥
-        builder.show(); //ÏÔÊ¾¶Ô»°¿ò
+        //å…³äº
+        builder.setIcon(R.drawable.ic_info); //å›¾æ ‡èµ„æºè°ƒç”¨ /drawable/ic_info
+        builder.setTitle(R.string.about); //æ ‡é¢˜è®¾ä¸º @string/about
+        builder.setView(inflater.inflate(R.layout.about, null)); //è®¾ç½®å¸ƒå±€
+        builder.setPositiveButton(R.string.ok, null); //è®¾ç½®æŒ‰é’®ï¼Œä»…è®¾ç½®ä¸€ä¸ªç¡®å®šæŒ‰é’®
+        builder.show(); //æ˜¾ç¤ºå¯¹è¯æ¡†
         return true;
     }
 }
