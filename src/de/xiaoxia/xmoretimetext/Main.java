@@ -73,7 +73,6 @@ public class Main implements IXposedHookLoadPackage, IXposedHookInitPackageResou
     private static String date;
     private static Object vClock = null;
     private static Boolean isFormatOk;
-    private static TextView textView;
     private static TextView mClock = null;
     private static ContentResolver cv;
     private static Handler mHandler;
@@ -83,6 +82,7 @@ public class Main implements IXposedHookLoadPackage, IXposedHookInitPackageResou
     private static Boolean markerAtHead;
     private static Boolean is24h;
     private static Boolean secondRun = false;
+    private static Boolean isRegReceiver = false;
     private static ViewGroup mIconArea;
     private static ViewGroup mRootView;
     private static LinearLayout mLayoutClock;
@@ -280,34 +280,29 @@ public class Main implements IXposedHookLoadPackage, IXposedHookInitPackageResou
             findAndHookMethod(CLASS_NAME, lpparam.classLoader, "updateClock", new XC_MethodHook(){
                 @Override
                 protected void afterHookedMethod(MethodHookParam param) {
-                    if(mClock == null)
-                        mClock = (TextView) param.thisObject;
+                    if(secondRun == false){
+                        secondRun = true;
+                        String mText = mClock.getText().toString().trim();
+                        markerAtHead = mText.indexOf(":") > 4 ? false : true;
+                        hasMarker = mText.length() >= 7;
 
-                    if (mClock != null){
-                        if(secondRun == false){
-                            secondRun = true;
-                            String mText = mClock.getText().toString().trim();
-                            markerAtHead = mText.indexOf(":") > 4 ? false : true;
-                            hasMarker = mText.length() >= 7;
-
-                            //根据系统是否是24小时制决定以秒计时的格式 know if the android is 24h or 12h
-                            cv = mClock.getContext().getContentResolver();
-                            String strTimeFormat = android.provider.Settings.System.getString(cv, android.provider.Settings.System.TIME_12_24);
-                            is24h = strTimeFormat != null && strTimeFormat.equals("24");
-                            if (is24h) {
-                                sdfSecond = new SimpleDateFormat("H:mm:ss");
-                            }else{
-                                sdfSecond = new SimpleDateFormat("h:mm:ss");
-                            }
-                            updateInfoAndDate();
-                            timerStart();
+                        //根据系统是否是24小时制决定以秒计时的格式 know if the android is 24h or 12h
+                        cv = mClock.getContext().getContentResolver();
+                        String strTimeFormat = android.provider.Settings.System.getString(cv, android.provider.Settings.System.TIME_12_24);
+                        is24h = strTimeFormat != null && strTimeFormat.equals("24");
+                        if (is24h) {
+                            sdfSecond = new SimpleDateFormat("H:mm:ss");
                         }else{
-                            updateInfoAndDate(); //放在这里每分钟更新一次，避免消耗资源 avoid cost much cpu resource
-                            timerStart();
-                            if(!_filter)
-                                marker = sdfMarker.format(System.currentTimeMillis());
-                            tick(false);
+                            sdfSecond = new SimpleDateFormat("h:mm:ss");
                         }
+                        updateInfoAndDate();
+                        timerStart();
+                    }else{
+                        updateInfoAndDate(); //放在这里每分钟更新一次，避免消耗资源 avoid cost much cpu resource
+                        timerStart();
+                        if(!_filter)
+                            marker = sdfMarker.format(System.currentTimeMillis());
+                        tick(false);
                     }
                 }
             });
@@ -323,8 +318,8 @@ public class Main implements IXposedHookLoadPackage, IXposedHookInitPackageResou
                     if(vClock != null){
                         //获取时钟的文字
                         if(_force){
-                            textView = (TextView) param.thisObject; //所以直接获取这个对象
-                            clockText = (String) textView.getText().toString();
+                            mClock = (TextView) param.thisObject; //所以直接获取这个对象
+                            clockText = (String) mClock.getText().toString();
                         }else{
                             clockText = param.getResult().toString();
                         }
@@ -333,7 +328,7 @@ public class Main implements IXposedHookLoadPackage, IXposedHookInitPackageResou
 
                         if(_force){
                             //写入textView
-                            textView.setText(textParse(clockText));
+                            mClock.setText(textParse(clockText));
                         }else{
                             //写入param
                             param.setResult(textParse(clockText));
@@ -476,15 +471,8 @@ public class Main implements IXposedHookLoadPackage, IXposedHookInitPackageResou
                     mClock = (TextView) liparam.view.findViewById(liparam.res.getIdentifier("clock", "id", PACKAGE_NAME));
                 }
 
-                if(mClock != null){
-                    //注册事件
-                    IntentFilter intent = new IntentFilter();
-                    intent.addAction(Intent.ACTION_TIMEZONE_CHANGED); //注册时区变更事件
-                    mClock.getContext().registerReceiver(xReceiver, intent);
-
-                    //向原TextView诸如一个vClock对象
-                    XposedHelpers.setAdditionalInstanceField(mClock, "vClock", true);
-                }
+                if(mClock != null)
+                    registerReceiver();
             }
         });
     }
@@ -610,6 +598,20 @@ public class Main implements IXposedHookLoadPackage, IXposedHookInitPackageResou
             finalTextSpan = TextUtils.concat(leftSpan, finalTextSpan, rightSpan);
         }
         return finalTextSpan;
+    }
+
+    //注册事件
+    private void registerReceiver(){
+        if(isRegReceiver == false){
+            //注册事件
+            IntentFilter intent = new IntentFilter();
+            intent.addAction(Intent.ACTION_TIMEZONE_CHANGED); //注册时区变更事件
+            mClock.getContext().registerReceiver(xReceiver, intent);
+
+            //向原TextView诸如一个vClock对象
+            XposedHelpers.setAdditionalInstanceField(mClock, "vClock", true);
+            isRegReceiver = true;
+        }
     }
 
     //广播接收
