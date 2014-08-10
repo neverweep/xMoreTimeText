@@ -98,7 +98,7 @@ public class Main implements IXposedHookLoadPackage, IXposedHookInitPackageResou
     //是否居中
     protected final static Boolean _center = prefs.getBoolean("center", false);
     //强制更新
-    protected final static Boolean _force =  prefs.getBoolean("force", false);
+    protected static Boolean _force =  prefs.getBoolean("force", false);
 
     /*Clock*/
     //显示时钟
@@ -217,7 +217,7 @@ public class Main implements IXposedHookLoadPackage, IXposedHookInitPackageResou
     };
 
     @SuppressLint("SimpleDateFormat")
-    public void handleLoadPackage(final LoadPackageParam lpparam) {
+    public void handleLoadPackage(final LoadPackageParam lpparam) throws Throwable {
         //如果不是systemui则跳过 return if package is not systemui
         if (!lpparam.packageName.equals(PACKAGE_NAME))
             return;
@@ -280,8 +280,13 @@ public class Main implements IXposedHookLoadPackage, IXposedHookInitPackageResou
             findAndHookMethod(CLASS_NAME, lpparam.classLoader, "updateClock", new XC_MethodHook(){
                 @Override
                 protected void afterHookedMethod(MethodHookParam param) {
+
                     if(secondRun == false){
                         secondRun = true;
+                        mClock = (TextView) param.thisObject;
+
+                        registerReceiver();
+
                         String mText = mClock.getText().toString().trim();
                         markerAtHead = mText.indexOf(":") > 4 ? false : true;
                         hasMarker = mText.length() >= 7;
@@ -320,17 +325,12 @@ public class Main implements IXposedHookLoadPackage, IXposedHookInitPackageResou
                         if(_force){
                             mClock = (TextView) param.thisObject; //所以直接获取这个对象
                             clockText = (String) mClock.getText().toString();
-                        }else{
-                            clockText = param.getResult().toString();
-                        }
-
-                        updateInfoAndDate();//更新info和date信息 update date and info text
-
-                        if(_force){
-                            //写入textView
+                            registerReceiver();
+                            updateInfoAndDate();//更新info和date信息 update date and info text
                             mClock.setText(textParse(clockText));
                         }else{
-                            //写入param
+                            clockText = param.getResult().toString();
+                            updateInfoAndDate();
                             param.setResult(textParse(clockText));
                         }
                     }
@@ -425,54 +425,67 @@ public class Main implements IXposedHookLoadPackage, IXposedHookInitPackageResou
                 public void handleLayoutInflated(LayoutInflatedParam liparam) throws Throwable {}
             });
         }catch(Throwable t){
-            layout = Utils.hasGeminiSupport() ? "gemini_super_status_bar" : "super_status_bar";
+            layout = "gemini_super_status_bar";
         }
 
-        resparam.res.hookLayout(PACKAGE_NAME, "layout", layout, new XC_LayoutInflated() {
+        try{
+            resparam.res.hookLayout(PACKAGE_NAME, "layout", layout, new XC_LayoutInflated() {
+                @Override
+                public void handleLayoutInflated(LayoutInflatedParam liparam) throws Throwable {}
+            });
+        }catch(Throwable t){
+            layout = "super_status_bar";
+        }
+
+        resparam.res.hookLayout(PACKAGE_NAME, "layout", "super_status_bar", new XC_LayoutInflated() {
             @Override
-            public void handleLayoutInflated(LayoutInflatedParam liparam){
+            public void handleLayoutInflated(LayoutInflatedParam liparam) throws Throwable {
 
-                if(_center){
-                    Boolean mClockInSbContents = false;
-                    String iconAreaId = Build.VERSION.SDK_INT > 16 ? "system_icon_area" : "icons";
-                    mIconArea = (ViewGroup) liparam.view.findViewById(liparam.res.getIdentifier(iconAreaId, "id", PACKAGE_NAME));
-                    if (mIconArea == null)
-                        return;
+                try {
+                    if(_center){
+                        Boolean mClockInSbContents = false;
+                        String iconAreaId = Build.VERSION.SDK_INT > 16 ? "system_icon_area" : "icons";
+                        mIconArea = (ViewGroup) liparam.view.findViewById(liparam.res.getIdentifier(iconAreaId, "id", PACKAGE_NAME));
+                        if (mIconArea == null)
+                            return;
 
-                    mRootView = (ViewGroup) liparam.view.findViewById(liparam.res.getIdentifier("status_bar", "id", PACKAGE_NAME));
-                    if (mRootView == null)
-                        return;
+                        mRootView = (ViewGroup) liparam.view.findViewById(liparam.res.getIdentifier("status_bar", "id", PACKAGE_NAME));
+                        if (mRootView == null)
+                            return;
 
-                    mLayoutClock = new LinearLayout(liparam.view.getContext());
-                    mLayoutClock.setLayoutParams(new LinearLayout.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
-                    mLayoutClock.setGravity(Gravity.CENTER);
-                    mRootView.addView(mLayoutClock);
+                        mLayoutClock = new LinearLayout(liparam.view.getContext());
+                        mLayoutClock.setLayoutParams(new LinearLayout.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
+                        mLayoutClock.setGravity(Gravity.CENTER);
+                        mRootView.addView(mLayoutClock);
 
-                    ViewGroup mSbContents = Build.VERSION.SDK_INT > 16 ? (ViewGroup) liparam.view.findViewById(liparam.res.getIdentifier("status_bar_contents", "id", PACKAGE_NAME)) : mIconArea;
-                    mClock = (TextView) mIconArea.findViewById(liparam.res.getIdentifier("clock", "id", PACKAGE_NAME));
+                        ViewGroup mSbContents = Build.VERSION.SDK_INT > 16 ? (ViewGroup) liparam.view.findViewById(liparam.res.getIdentifier("status_bar_contents", "id", PACKAGE_NAME)) : mIconArea;
+                        mClock = (TextView) mIconArea.findViewById(liparam.res.getIdentifier("clock", "id", PACKAGE_NAME));
 
-                    if (mClock == null && mSbContents != null) {
-                        mClock = (TextView) mSbContents.findViewById(liparam.res.getIdentifier("clock", "id", PACKAGE_NAME));
-                        mClockInSbContents = mClock != null;
-                    }
+                        if (mClock == null && mSbContents != null) {
+                            mClock = (TextView) mSbContents.findViewById(liparam.res.getIdentifier("clock", "id", PACKAGE_NAME));
+                            mClockInSbContents = mClock != null;
+                        }
 
-                    if (mClockInSbContents) {
+                        if (mClockInSbContents) {
+                            mSbContents.removeView(mClock);
+                        } else {
+                            mIconArea.removeView(mClock);
+                        }
+
+                        mClock.setGravity(Gravity.CENTER);
+                        mClock.setLayoutParams(new LinearLayout.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
+                        mClock.setPadding(0, 0, 0, 0);
                         mSbContents.removeView(mClock);
-                    } else {
-                        mIconArea.removeView(mClock);
+                        mLayoutClock.addView(mClock);
+                    }else{
+                        mClock = (TextView) liparam.view.findViewById(liparam.res.getIdentifier("clock", "id", PACKAGE_NAME));
                     }
 
-                    mClock.setGravity(Gravity.CENTER);
-                    mClock.setLayoutParams(new LinearLayout.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
-                    mClock.setPadding(0, 0, 0, 0);
-                    mSbContents.removeView(mClock);
-                    mLayoutClock.addView(mClock);
-                }else{
-                    mClock = (TextView) liparam.view.findViewById(liparam.res.getIdentifier("clock", "id", PACKAGE_NAME));
+                    if(mClock != null)
+                        registerReceiver();
+                } catch (Throwable t) {
+                    _force = true;
                 }
-
-                if(mClock != null)
-                    registerReceiver();
             }
         });
     }

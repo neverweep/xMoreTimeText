@@ -42,6 +42,7 @@ public class SettingCustomize extends PreferenceActivity implements OnSharedPref
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         addPreferencesFromResource(R.xml.setting_customize);
+        getPreferenceManager().setSharedPreferencesMode(MODE_WORLD_READABLE);
 
         //…Ë÷√∑µªÿ∞¥≈•
         getActionBar().setDisplayHomeAsUpEnabled(true);
