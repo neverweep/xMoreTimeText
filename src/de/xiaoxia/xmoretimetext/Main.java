@@ -285,8 +285,6 @@ public class Main implements IXposedHookLoadPackage, IXposedHookInitPackageResou
                         secondRun = true;
                         mClock = (TextView) param.thisObject;
 
-                        registerReceiver();
-
                         String mText = mClock.getText().toString().trim();
                         markerAtHead = mText.indexOf(":") > 4 ? false : true;
                         hasMarker = mText.length() >= 7;
@@ -324,8 +322,8 @@ public class Main implements IXposedHookLoadPackage, IXposedHookInitPackageResou
                         //获取时钟的文字
                         if(_force){
                             mClock = (TextView) param.thisObject; //所以直接获取这个对象
-                            clockText = (String) mClock.getText().toString();
                             registerReceiver();
+                            clockText = (String) mClock.getText().toString();
                             updateInfoAndDate();//更新info和date信息 update date and info text
                             mClock.setText(textParse(clockText));
                         }else{
@@ -437,7 +435,7 @@ public class Main implements IXposedHookLoadPackage, IXposedHookInitPackageResou
             layout = "super_status_bar";
         }
 
-        resparam.res.hookLayout(PACKAGE_NAME, "layout", "super_status_bar", new XC_LayoutInflated() {
+        resparam.res.hookLayout(PACKAGE_NAME, "layout", layout, new XC_LayoutInflated() {
             @Override
             public void handleLayoutInflated(LayoutInflatedParam liparam) throws Throwable {
 
@@ -481,8 +479,11 @@ public class Main implements IXposedHookLoadPackage, IXposedHookInitPackageResou
                         mClock = (TextView) liparam.view.findViewById(liparam.res.getIdentifier("clock", "id", PACKAGE_NAME));
                     }
 
-                    if(mClock != null)
+                    if(mClock != null){
+                        //向原TextView诸如一个vClock对象
+                        XposedHelpers.setAdditionalInstanceField(mClock, "vClock", true);
                         registerReceiver();
+                    }
                 } catch (Throwable t) {
                     _force = true;
                 }
@@ -620,9 +621,6 @@ public class Main implements IXposedHookLoadPackage, IXposedHookInitPackageResou
             IntentFilter intent = new IntentFilter();
             intent.addAction(Intent.ACTION_TIMEZONE_CHANGED); //注册时区变更事件
             mClock.getContext().registerReceiver(xReceiver, intent);
-
-            //向原TextView诸如一个vClock对象
-            XposedHelpers.setAdditionalInstanceField(mClock, "vClock", true);
             isRegReceiver = true;
         }
     }
