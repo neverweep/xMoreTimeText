@@ -57,11 +57,8 @@ public class Main implements IXposedHookLoadPackage, IXposedHookInitPackageResou
     private static final String CLASS_NAME   = "com.android.systemui.statusbar.policy.Clock";
 
     private static CharSequence info;
-    private static CharSequence finalTextSpan;
-    private static CharSequence finalClockSpan;
     private static SpannableString infoSpan;
     private static SpannableString dateSpan;
-    private static SpannableString clockSpan;
     private static SpannableString leftSpan;
     private static SpannableString rightSpan;
     private static String[] preText;
@@ -302,7 +299,6 @@ public class Main implements IXposedHookLoadPackage, IXposedHookInitPackageResou
                         timerStart();
                     }else{
                         updateInfoAndDate(); //放在这里每分钟更新一次，避免消耗资源 avoid cost much cpu resource
-                        timerStart();
                         if(!_filter)
                             marker = sdfMarker.format(System.currentTimeMillis());
                         tick(false);
@@ -548,13 +544,18 @@ public class Main implements IXposedHookLoadPackage, IXposedHookInitPackageResou
 
     @SuppressLint("SimpleDateFormat")
     private static CharSequence textParse(String originalClockText){
+        CharSequence finalClockSpan;
+        CharSequence finalTextSpan;
+        SpannableString clockSpan;
+
         if(_clock){
             if(_second){
+                String nowSecond = sdfSecond.format(System.currentTimeMillis());
                 //这里的内容是每秒要更新的 update every second
                 if(!(_filter && is24h)){
-                    originalClockText = hasMarker ? markerAtHead ? marker + " " + sdfSecond.format(System.currentTimeMillis()) : sdfSecond.format(System.currentTimeMillis()) + " " + marker : sdfSecond.format(System.currentTimeMillis());
+                    originalClockText = hasMarker ? markerAtHead ? marker + " " + nowSecond : nowSecond + " " + marker : nowSecond;
                 }else{
-                    originalClockText = sdfSecond.format(System.currentTimeMillis());
+                    originalClockText = nowSecond;
                 }
             }else{
                 if(_filter){
@@ -667,7 +668,7 @@ public class Main implements IXposedHookLoadPackage, IXposedHookInitPackageResou
                 waitOneSecond();
             }
         };
-        mHandler.postDelayed(mTicker, 800);
+        mHandler.post(mTicker);
     }
 
     private static void waitOneSecond() {
@@ -685,13 +686,11 @@ public class Main implements IXposedHookLoadPackage, IXposedHookInitPackageResou
     }
 
     private static void tick(boolean changeTextWithHandler) {
-        vClock = XposedHelpers.getAdditionalInstanceField(mClock, "vClock");
-        if(vClock != null){
-            if (changeTextWithHandler){
-                setClockTextOnHandler(textParse(""));
-            }else{
-                mClock.setText(textParse(""));
-            }
+        CharSequence text = textParse("");
+        if (changeTextWithHandler){
+            setClockTextOnHandler(text);
+        }else{
+            mClock.setText(text);
         }
     }
 
