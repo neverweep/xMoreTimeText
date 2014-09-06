@@ -18,6 +18,7 @@ package de.xiaoxia.xmoretimetext;
 
 import static de.robv.android.xposed.XposedHelpers.findAndHookMethod;
 
+import java.lang.reflect.Field;
 import java.text.SimpleDateFormat;
 import java.util.Locale;
 import java.util.TimeZone;
@@ -29,6 +30,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.res.Resources;
+import android.graphics.Paint;
 import android.os.Build;
 import android.os.Handler;
 import android.text.SpannableString;
@@ -45,7 +47,9 @@ import android.widget.TextView;
 import de.robv.android.xposed.IXposedHookInitPackageResources;
 import de.robv.android.xposed.IXposedHookLoadPackage;
 import de.robv.android.xposed.XC_MethodHook;
+import de.robv.android.xposed.XC_MethodReplacement;
 import de.robv.android.xposed.XSharedPreferences;
+import de.robv.android.xposed.XposedBridge;
 import de.robv.android.xposed.XposedHelpers;
 import de.robv.android.xposed.callbacks.XC_LayoutInflated;
 import de.robv.android.xposed.callbacks.XC_InitPackageResources.InitPackageResourcesParam;
@@ -55,6 +59,7 @@ public class Main implements IXposedHookLoadPackage, IXposedHookInitPackageResou
 
     private static final String PACKAGE_NAME = "com.android.systemui";
     private static final String CLASS_NAME   = "com.android.systemui.statusbar.policy.Clock";
+    private static final String CLASS_ICON_MERGER = "com.android.systemui.statusbar.phone.IconMerger";
 
     private static CharSequence info;
     private static SpannableString infoSpan;
@@ -87,72 +92,48 @@ public class Main implements IXposedHookLoadPackage, IXposedHookInitPackageResou
     private static int mAnimPushUpOut;
     private static int mAnimPushDownIn;
     private static int mAnimFadeIn;
+    private static View mIconMergerView;
+
 
     //使用Xposed提供的XSharedPreferences方法来读取android内置的SharedPreferences设置
     private final static XSharedPreferences prefs = new XSharedPreferences(Main.class.getPackage().getName());
 
     /*Basic*/
-    //是否居中
-    protected final static Boolean _center = prefs.getBoolean("center", false);
-    //强制更新
-    protected static Boolean _force =  prefs.getBoolean("force", false);
+    protected final static Boolean _center = prefs.getBoolean("center", false); //是否居中
+    protected static Boolean _force =  prefs.getBoolean("force", false); //强制更新
 
     /*Clock*/
-    //显示时钟
-    protected final static Boolean _clock = prefs.getBoolean("clock", false);
-    //删除原字符
-    protected final static Boolean _filter = prefs.getBoolean("filter", false);
-    //以秒显示
-    protected final static Boolean _second = prefs.getBoolean("second", false);
-    //自定义原生时钟颜色
-    protected final static int _color_clock = prefs.getInt("color_clock", -16777216);
-    //自定义原生时钟颜色开关
-    protected final static Boolean _color_clock_s = prefs.getBoolean("color_clock_s", false);
+    protected final static Boolean _clock = prefs.getBoolean("clock", false); //显示时钟
+    protected final static Boolean _filter = prefs.getBoolean("filter", false); //删除原字符
+    protected final static Boolean _second = prefs.getBoolean("second", false); //以秒显示
+    protected final static int _color_clock = prefs.getInt("color_clock", -16777216); //自定义原生时钟颜色
+    protected final static Boolean _color_clock_s = prefs.getBoolean("color_clock_s", false); //自定义原生时钟颜色开关
 
     /*Info*/
-    //是否显示信息
-    protected final static Boolean _info = prefs.getBoolean("basic_info", false);
-    //自定义信息
-    protected final static Boolean _customize = prefs.getBoolean("customize", false);
-    //自定义信息位置
-    protected final static Boolean _position = prefs.getString("position", "true").equals("true");
-    //自定义信息大小
-    protected final static Float _size = Float.valueOf(prefs.getString("size", "1.0"));
-    //自定义信息颜色
-    protected final static int _color_info = prefs.getInt("color_info", -16777216);
-    //自定义信息颜色开关
-    protected final static Boolean _color_info_s =  prefs.getBoolean("color_info_s", false);
+    protected final static Boolean _info = prefs.getBoolean("basic_info", false); //是否显示信息
+    protected final static Boolean _customize = prefs.getBoolean("customize", false); //自定义信息
+    protected final static Boolean _position = prefs.getString("position", "true").equals("true"); //自定义信息位置
+    protected final static Float _size = Float.valueOf(prefs.getString("size", "1.0")); //自定义信息大小
+    protected final static int _color_info = prefs.getInt("color_info", -16777216); //自定义信息颜色
+    protected final static Boolean _color_info_s =  prefs.getBoolean("color_info_s", false); //自定义信息颜色开关
 
     /*Surrounding*/
-    //自定义环绕开关
-    protected static Boolean _surrounding =  prefs.getBoolean("surrounding", false);
-    //自定义环绕文本
-    protected final static String _surrounding_left =  prefs.getString("surrounding_left", "");
+    protected static Boolean _surrounding =  prefs.getBoolean("surrounding", false); //自定义环绕开关
+    protected final static String _surrounding_left =  prefs.getString("surrounding_left", ""); //自定义环绕文本
     protected final static String _surrounding_right =  prefs.getString("surrounding_right", "");
-    //自定义环绕大小
-    protected final static Float _size_surrounding = Float.valueOf(prefs.getString("size_surrounding", "1.0"));
-    //自定义环绕颜色
-    protected final static int _color_surrounding = prefs.getInt("color_surrounding", -16777216);
-    //自定义环绕颜色开关
-    protected final static Boolean _color_surrounding_s =  prefs.getBoolean("color_surrounding_s", false);
-    //自定义环绕位置
-    protected final static Boolean _surrounding_position =  prefs.getString("surrounding_position", "true").equals("true");
+    protected final static Float _size_surrounding = Float.valueOf(prefs.getString("size_surrounding", "1.0")); //自定义环绕大小
+    protected final static int _color_surrounding = prefs.getInt("color_surrounding", -16777216); //自定义环绕颜色
+    protected final static Boolean _color_surrounding_s =  prefs.getBoolean("color_surrounding_s", false); //自定义环绕颜色开关
+    protected final static Boolean _surrounding_position =  prefs.getString("surrounding_position", "true").equals("true"); //自定义环绕位置
 
     /*Date*/
-    //是否显示日期
-    protected final static Boolean _display_date = prefs.getBoolean("display_date", false);
-    //自定义日期位置
-    protected final static Boolean _position_date = prefs.getString("position_date", "true").equals("true");
-    //自定义日期大小
-    protected final static Boolean _priority_date = prefs.getString("priority_date", "true").equals("true");
-    //自定义日期格式
-    protected final static String _format_date = prefs.getString("format_date", "").trim();
-    //自定义日期大小
-    protected final static Float _size_date = Float.valueOf(prefs.getString("size_date", "1.0"));
-    //自定义日期颜色
-    protected final static int _color_date = prefs.getInt("color_date", -16777216);
-    //自定义日期颜色开关
-    protected final static Boolean _color_date_s =  prefs.getBoolean("color_date_s", false);
+    protected final static Boolean _display_date = prefs.getBoolean("display_date", false); //是否显示日期
+    protected final static Boolean _position_date = prefs.getString("position_date", "true").equals("true"); //自定义日期位置
+    protected final static Boolean _priority_date = prefs.getString("priority_date", "true").equals("true"); //自定义日期大小
+    protected final static String _format_date = prefs.getString("format_date", "").trim(); //自定义日期格式
+    protected final static Float _size_date = Float.valueOf(prefs.getString("size_date", "1.0")); //自定义日期大小
+    protected final static int _color_date = prefs.getInt("color_date", -16777216); //自定义日期颜色
+    protected final static Boolean _color_date_s =  prefs.getBoolean("color_date_s", false); //自定义日期颜色开关
 
     //判断时间段是否可用的布尔数组 time period validation array
     private static Boolean[] pValidaty = {
@@ -270,6 +251,7 @@ public class Main implements IXposedHookLoadPackage, IXposedHookInitPackageResou
 
         if(_center)
             initClockAnim(lpparam.classLoader);
+            iconAdj(lpparam.classLoader);
 
         //判断是否开启秒数
         if(_second){
@@ -334,8 +316,9 @@ public class Main implements IXposedHookLoadPackage, IXposedHookInitPackageResou
     }
 
     /*
-     * Center clock view and know if is expended status bar.
+     * Center clock view and know if is expended status bar
      * Center clock ticker animation
+     * Notification icons container width control for center clock
      * Thanks for the work of GravityBox by C3C076@xda
      * https://github.com/GravityBox/GravityBox/blob/jellybean/src/com/ceco/gm2/gravitybox/ModStatusBar.java
      *
@@ -404,6 +387,107 @@ public class Main implements IXposedHookLoadPackage, IXposedHookInitPackageResou
                 mLayoutClock.startAnimation(anim);
             }
         });
+    }
+
+    public void iconAdj(final ClassLoader classLoader){
+        try {
+            final Class<?> classIconMerger = XposedHelpers.findClass(CLASS_ICON_MERGER, classLoader);
+
+            XposedHelpers.findAndHookMethod(classIconMerger, "onMeasure", int.class, int.class, new XC_MethodHook() {
+                @Override
+                protected void afterHookedMethod(MethodHookParam param) throws Throwable {
+                    if (mIconMergerView == null)
+                        mIconMergerView = (View) param.thisObject;
+
+                    Context context = mClock.getContext();
+                    if ((mClock == null) || context == null || mLayoutClock == null || mLayoutClock.getChildCount() == 0)
+                        return;
+
+                    Resources res = context.getResources();
+                    int totalWidth = res.getDisplayMetrics().widthPixels;
+                    int iconSize = XposedHelpers.getIntField(param.thisObject, "mIconSize");
+                    Integer vIconPad = (Integer) XposedHelpers.getAdditionalInstanceField(param.thisObject, "gbSbIconPad");
+                    if (vIconPad == null) {
+                        vIconPad = 0;
+                        int vIconPadResId = res.getIdentifier("status_bar_icon_padding", "dimen", PACKAGE_NAME);
+                        if (vIconPadResId != 0) {
+                            vIconPad = res.getDimensionPixelSize(vIconPadResId);
+                        }
+                        XposedHelpers.setAdditionalInstanceField(param.thisObject, "gbSbIconPad", vIconPad);
+                    } else {
+                        vIconPad = (Integer) XposedHelpers.getAdditionalInstanceField( param.thisObject, "gbSbIconPad");
+                    }
+
+                    // use clock or traffic meter for basic measurement
+                    Paint p;
+                    String text;
+                    if (mClock != null) {
+                        p = mClock.getPaint();
+                        text = mClock.getText().toString();
+                    } else {
+                        return;
+                    }
+
+                    int clockWidth = (int) p.measureText(text) + iconSize;
+                    int availWidth = totalWidth/2 - clockWidth/2 - iconSize/2;
+                    XposedHelpers.setAdditionalInstanceField(param.thisObject, "gbAvailWidth", availWidth);
+                    int newWidth = availWidth - (availWidth % (iconSize + 2 * vIconPad));
+
+                    Field fMeasuredWidth = View.class.getDeclaredField("mMeasuredWidth");
+                    fMeasuredWidth.setAccessible(true);
+                    Field fMeasuredHeight = View.class.getDeclaredField("mMeasuredHeight");
+                    fMeasuredHeight.setAccessible(true);
+                    Field fPrivateFlags = View.class.getDeclaredField("mPrivateFlags");
+                    fPrivateFlags.setAccessible(true);
+                    fMeasuredWidth.setInt(param.thisObject, newWidth);
+                    fMeasuredHeight.setInt(param.thisObject, ((View)param.thisObject).getMeasuredHeight());
+                    int privateFlags = fPrivateFlags.getInt(param.thisObject);
+                    privateFlags |= 0x00000800;
+                    fPrivateFlags.setInt(param.thisObject, privateFlags);
+                }
+            });
+
+            XposedHelpers.findAndHookMethod(classIconMerger, "checkOverflow", int.class, new XC_MethodReplacement() {
+                @Override
+                protected Object replaceHookedMethod(MethodHookParam param) throws Throwable {
+                    if (mLayoutClock == null || mLayoutClock.getChildCount() == 0 || XposedHelpers.getAdditionalInstanceField(param.thisObject, "gbAvailWidth") == null)
+                        return XposedBridge.invokeOriginalMethod(param.method, param.thisObject, param.args);
+
+                    try {
+                        final View moreView = (View) XposedHelpers.getObjectField(param.thisObject, "mMoreView");
+                        if (moreView == null) return null;
+
+                        int iconSize = XposedHelpers.getIntField(param.thisObject, "mIconSize");
+                        int availWidth = (Integer) XposedHelpers.getAdditionalInstanceField(
+                            param.thisObject, "gbAvailWidth");
+                        int vIconPad = (Integer) XposedHelpers.getAdditionalInstanceField(
+                            param.thisObject, "gbSbIconPad");
+
+                        LinearLayout layout = (LinearLayout) param.thisObject;
+                        final int N = layout.getChildCount();
+                        int visibleChildren = 0;
+                        for (int i=0; i<N; i++) {
+                            if(layout.getChildAt(i).getVisibility() != View.GONE)
+                                visibleChildren++;
+                        }
+
+                        final boolean overflowShown = (moreView.getVisibility() == View.VISIBLE);
+                        final boolean moreRequired = visibleChildren * (iconSize + 2 * vIconPad) > availWidth;
+                        if (moreRequired != overflowShown) {
+                            layout.post(new Runnable() {
+                                @Override
+                                public void run() {
+                                    moreView.setVisibility(moreRequired ? View.VISIBLE : View.GONE);
+                                }
+                            });
+                        }
+                        return null;
+                    } catch (Throwable t) {
+                        return XposedBridge.invokeOriginalMethod(param.method, param.thisObject, param.args);
+                    }
+                }
+            });
+        } catch (Throwable t) {}
     }
 
     //此处的作用为：在systemui初始化资源的过程中，向状态栏clock加入一个没用的vClock，然后就可以判断是不是为状态栏的Clock了。
