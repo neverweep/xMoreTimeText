@@ -418,7 +418,6 @@ public class Main implements IXposedHookLoadPackage, IXposedHookInitPackageResou
                         vIconPad = (Integer) XposedHelpers.getAdditionalInstanceField( param.thisObject, "gbSbIconPad");
                     }
 
-                    // use clock or traffic meter for basic measurement
                     Paint p;
                     String text;
                     if (mClock != null) {
