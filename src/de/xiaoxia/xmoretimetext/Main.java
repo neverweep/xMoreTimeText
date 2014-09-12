@@ -93,7 +93,7 @@ public class Main implements IXposedHookLoadPackage, IXposedHookInitPackageResou
     private static int mAnimPushDownIn;
     private static int mAnimFadeIn;
     private static View mIconMergerView;
-
+    private static Boolean vClockErr = false;
 
     //使用Xposed提供的XSharedPreferences方法来读取android内置的SharedPreferences设置
     private final static XSharedPreferences prefs = new XSharedPreferences(Main.class.getPackage().getName());
@@ -292,6 +292,13 @@ public class Main implements IXposedHookLoadPackage, IXposedHookInitPackageResou
             findAndHookMethod(CLASS_NAME, lpparam.classLoader, _force ? "updateClock" : "getSmallTime", new XC_MethodHook(){
                 @Override
                 protected void afterHookedMethod(MethodHookParam param) {
+
+                    if(vClockErr == true){
+                        mClock = (TextView) param.thisObject; //所以直接获取这个对象
+                        XposedHelpers.setAdditionalInstanceField(mClock, "vClock", true);
+                        vClockErr = false;
+                    }
+
                     //获取vClock对象 get the vclock object
                     vClock = XposedHelpers.getAdditionalInstanceField(param.thisObject, "vClock");
 
@@ -502,16 +509,7 @@ public class Main implements IXposedHookLoadPackage, IXposedHookInitPackageResou
                 public void handleLayoutInflated(LayoutInflatedParam liparam) throws Throwable {}
             });
         }catch(Throwable t){
-            layout = "gemini_super_status_bar";
-        }
-
-        try{
-            resparam.res.hookLayout(PACKAGE_NAME, "layout", layout, new XC_LayoutInflated() {
-                @Override
-                public void handleLayoutInflated(LayoutInflatedParam liparam) throws Throwable {}
-            });
-        }catch(Throwable t){
-            layout = "super_status_bar";
+            layout = Utils.geminiSupport() ? "gemini_super_status_bar" : "super_status_bar";
         }
 
         resparam.res.hookLayout(PACKAGE_NAME, "layout", layout, new XC_LayoutInflated() {
@@ -562,9 +560,13 @@ public class Main implements IXposedHookLoadPackage, IXposedHookInitPackageResou
                         //向原TextView诸如一个vClock对象
                         XposedHelpers.setAdditionalInstanceField(mClock, "vClock", true);
                         registerReceiver();
+                    }else{
+                        _force = true;
+                        vClockErr = true;
                     }
                 } catch (Throwable t) {
                     _force = true;
+                    vClockErr = true;
                 }
             }
         });
@@ -658,7 +660,7 @@ public class Main implements IXposedHookLoadPackage, IXposedHookInitPackageResou
         }
 
         //如果环绕打开且在时钟外边 if surrounding on and set to be displayed out of clock text
-        if(_surrounding && !_surrounding_position){
+        if(_surrounding && _surrounding_position){
             finalClockSpan = TextUtils.concat(leftSpan, clockSpan, rightSpan);
         }
 
@@ -692,7 +694,7 @@ public class Main implements IXposedHookLoadPackage, IXposedHookInitPackageResou
         }
 
         //如果环绕打开且在所有文字外边if surrounding on and set to be displayed out of all text
-        if(_surrounding && _surrounding_position){
+        if(_surrounding && !_surrounding_position){
             finalTextSpan = TextUtils.concat(leftSpan, finalTextSpan, rightSpan);
         }
         return finalTextSpan;

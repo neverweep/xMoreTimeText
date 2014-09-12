@@ -16,7 +16,7 @@
 <resources>
     <string name="app_name">X 時鐘文字擴展</string>
     <string name="about">關於 X 時鐘文字擴展</string>
-    <string name="about_msg"><b>歡迎使用這個 Xposed 模組\n希望能給你帶來一點方便：）</b>\n\n我的博客: <a href="http://xiaoxia.de/">xiaoxia.de</a>\n\n捐贈：\n<a href="http://xiaoxia.de/upload/donation.html">xiaoxia.de/upload/donation.html</a></string>
+    <string name="about_msg"><b>歡迎使用這個 Xposed 模組\n希望能給你帶來一點方便：）</b>\n\n我的博客：\n<a href="http://xiaoxia.de/">xiaoxia.de</a>\n\n捐贈：\n<a href="http://xiaoxia.de/upload/donation.html">xiaoxia.de/upload/donation.html</a></string>
     <string name="settings">設置</string>
     <string name="ok">確定</string>
     <string name="cancel">取消</string>

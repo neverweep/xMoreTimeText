@@ -194,11 +194,6 @@ public class Setting extends PreferenceActivity implements OnSharedPreferenceCha
             lp.setSummary(lp.getEntry());
             return;
         }
-        if(key.equals("size_expended")){
-            lp = (ListPreference) findPreference("size_expended");
-            lp.setSummary(lp.getEntry());
-            return;
-        }
         if(key.equals("size_surrounding")){
             lp = (ListPreference) findPreference("size_surrounding");
             lp.setSummary(lp.getEntry());
